@@ -1,12 +1,13 @@
 import React from 'react';
-import './mainContent.css'; // Adjust path as necessary
+import GraphComponent from './GraphComponent';
 
-function MainContent() {
-  return (
-    <main className="col-md-10 col-lg-10" id="main-content">
-      {/* Your main content here */}
-    </main>
-  );
-}
+const MainContent = ({ graphData }) => {
+    return (
+        <div className="main-content">
+            {/* Render GraphComponent with the provided graphData */}
+            <GraphComponent graphData={graphData} />
+        </div>
+    );
+};
 
 export default MainContent;
