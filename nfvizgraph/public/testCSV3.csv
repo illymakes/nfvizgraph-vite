@@ -1,0 +1,7 @@
+entity_id,object,predicate,has_name_subject,has_name_object,has_entity_type_subject,has_entity_type_object,has_canonical_name_subject,has_canonical_name_object,metadata
+"The Legend of Zelda: Breath of the Wild","Nintendo","developedBy","Breath of the Wild","Nintendo","VideoGame","Developer","The Legend of Zelda: Breath of the Wild","Nintendo","{"confidence": 0.98}"
+"The Legend of Zelda: Breath of the Wild","Nintendo","publishedBy","Breath of the Wild","Nintendo","VideoGame","Publisher","The Legend of Zelda: Breath of the Wild","Nintendo","{"confidence": 0.98}"
+"Half-Life 2","Valve","developedBy","Half-Life 2","Valve","VideoGame","Developer","Half-Life 2","Valve","{"confidence": 0.95}"
+"Half-Life 2","Valve","publishedBy","Half-Life 2","Valve","VideoGame","Publisher","Half-Life 2","Valve","{"confidence": 0.95}"
+"Portal 2","Valve","developedBy","Portal 2","Valve","VideoGame","Developer","Portal 2","Valve","{"confidence": 0.96}"
+"Portal 2","Valve","publishedBy","Portal 2","Valve","VideoGame","Publisher","Portal 2","Valve","{"confidence": 0.96}"

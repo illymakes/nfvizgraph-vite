@@ -1,0 +1,7 @@
+,index,entity_id,predicate,literal,access,provenance,metadata,object,has_entity_type_subject,has_canonical_name_subject,has_name_subject,has_entity_type_object,has_canonical_name_object,has_name_object,has_entity_type,has_canonical_name,has_name
+0,12,item1,part,,access1,lots of things item1,{'confidence: 0.77},item1,gpe,gpe-name1,gpe-name1_abbr,gpe,name-of-thing,name-of-thing_abbr,,,
+1,24,item1,gen,,access1,lots of things item1,{'confidence: 0.87},item2,org,org1,org1_abbr,org,name-of-other,name-of-other_abbr,,,
+2,25,item3,gen,,access1,lots of things item3,{'confidence: 0.76},item2,org,org1,org1_abbr,org,hi-there-thing,hi-there-thing_abbr,,,
+3,26,item3,group,,access1,lots of things item3,{'confidence: 0.74},item5,pers,name1,name1_abbr,pers,name-of-thing,name-of-thing_abbr,,,
+4,32,item5,part,,access1,lots of things item5,{'confidence: 1.0},item5,pers,name2,name2_abbr,pers,silly-name,silly-name_abbr,,,
+5,41,item5,group,,access1,lots of things item6,{'confidence: 0.65},item3,gpe,gpe-name2,gpe-name2_abbr,gpe,name-of-other,name-of-other_abbr,,,

@@ -1,0 +1,7 @@
+,index,entity_id,predicate,metadata,object,has_entity_type_subject,has_entity_type_object,has_name_subject,has_name_object,has_canonical_name_subject,has_canonical_name_object
+0,12,The Legend of Zelda: Breath of the Wild,developedBy,"{confidence"": 0.98}""",The Legend of Zelda: Breath of the Wild,Nintendo,Nintendo,Breath of the Wild,Nintendo,The Legend of Zelda: Breath of the Wild,The Legend of Zelda: Breath of the Wild
+1,24,The Legend of Zelda: Breath of the Wild,publishedBy,"{confidence"": 0.98}""",The Legend of Zelda: Breath of the Wild,Nintendo,Nintendo,Breath of the Wild,Nintendo,The Legend of Zelda: Breath of the Wild,The Legend of Zelda: Breath of the Wild
+2,25,Half-Life 2,developedBy,"{confidence"": 0.95}""",Half-Life 2,Valve,Valve,Half-Life 2,Valve,Half-Life 2,Half-Life 2
+3,26,Half-Life 2,publishedBy,"{confidence"": 0.95}""",Half-Life 2,Valve,Valve,Half-Life 2,Valve,Half-Life 2,Half-Life 2
+4,32,Portal 2,developedBy,"{confidence"": 0.96}""",Portal 2,Valve,Valve,Portal 2,Valve,Portal 2,Portal 2
+5,41,Portal 2,publishedBy,"{confidence"": 0.96}""",Portal 2,Valve,Valve,Portal 2,Valve,Portal 2,Portal 2
