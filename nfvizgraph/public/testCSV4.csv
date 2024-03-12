@@ -18,4 +18,4 @@ entity_id,object,predicate,has_name_subject,has_name_object,has_entity_type_subj
 "Final Fantasy XV","Kingdom Hearts III","Square Enix","RPG","PS4","VideoGame","VideoGame","Final Fantasy XV","Square Enix","{"confidence": 0.87}"
 "Elden Ring","Bloodborne","FromSoftware","Action RPG","PS4","VideoGame","VideoGame","Elden Ring","FromSoftware","{"confidence": 0.96}"
 "Monster Hunter World","Resident Evil 2","Capcom","Action RPG","PC","VideoGame","VideoGame","Monster Hunter World","Capcom","{"confidence": 0.92}"
-"Celeste","TowerFall Ascension","Matt Makes Games
+"Celeste","TowerFall Ascension","Matt Makes Games","Platformer","Switch","VideoGame","VideoGame","Celeste","Matt Makes Games","{"confidence": 0.95}"

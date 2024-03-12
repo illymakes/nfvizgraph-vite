@@ -15,3 +15,5 @@ Name - Publisher - Developer - Genre - Platform - ESRB Rating - FanScore/Rating
 node = game
 link = developer
 node fill = either genre or platform, undecided rn
+
+need to also fix the data in the CSV (4) its appearing wrong lmao

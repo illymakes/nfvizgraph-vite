@@ -55,6 +55,7 @@ function Graph() {
                         has_entity_type_object: d.has_entity_type_object,
                         has_canonical_name_subject: d.has_canonical_name_subject,
                         has_canonical_name_object: d.has_canonical_name_object,
+                        label_text: d.has_canonical_name_subject,
                         metadata: formatMetadata(d.metadata),
                     });
                 }
@@ -70,6 +71,7 @@ function Graph() {
                         has_entity_type_object: d.has_entity_type_object,
                         has_canonical_name_subject: d.has_canonical_name_object,
                         has_canonical_name_object: d.has_canonical_name_object,
+                        label_text: d.has_canonical_name_object,
                         metadata: formatMetadata(d.metadata),
                     });
                 }
@@ -116,15 +118,56 @@ function Graph() {
         const zoom = d3.zoom()
             .scaleExtent([0.1, 30])
             .on('zoom', (event) => {
-                g.attr('transform', event.transform);
+                zoomed(event)
+                simulation.restart()
             });
+
+        //define a variable to store the zoom transformation
+        let currentTransform = d3.zoomIdentity;
+
+        // let adjustedLinkDistance;
+        // let adjustedChargeStrength;
+        // let adjustedCollideRadius;
+
+        function zoomed(event) {
+            currentTransform = event.transform;
+
+            //adjust link distance and charge strength based on zoom level
+            const zoomScale = currentTransform.k;
+            const adjustedLinkDistance = initialLinkDistance / zoomScale;
+            const adjustedChargeStrength = initialChargeStrength /zoomScale;
+            const adjustedCollideRadius = 12 / zoomScale;
+
+            simulation.force('link').distance(adjustedLinkDistance);
+            simulation.force('charge').strength(adjustedChargeStrength);
+            simulation.force('collide').strength(adjustedCollideRadius);
+            simulation.force('linkCollide', d3.forceCollide(linkCollideRadius));
+            simulation.force('link').distance(d => {
+                return d.source === d.target ? relatedLinkDistance : unrelatedLinkDistance
+            });
+
+            g.attr('transform', event.transform);
+
+            //adjust font size according to zoom lvl
+            label.style('font-size', `${16 / currentTransform.k}px`);
+        }
 
         svgElement.call(zoom);
 
+        const initialLinkDistance = 50;
+        const initialChargeStrength = -600;
+        const linkCollideRadius = 5;
+        const unrelatedLinkDistance = 50;
+        const relatedLinkDistance = 0;
+
         const simulation = d3.forceSimulation(graphData.nodes)
-            .force('link', d3.forceLink(graphData.links).id(d => d.id))
-            .force('charge', d3.forceManyBody())
-            .force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2));
+            .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(initialLinkDistance))
+            .force('charge', d3.forceManyBody().strength(initialChargeStrength))
+            .force('center', d3.forceCenter((dimensions.width / 2), (dimensions.height / 2)))
+            .force('collide', d3.forceCollide(15))
+            .force('x', d3.forceX().strength(0.1))
+            .force('y', d3.forceY().strength(0.1))
+            .force('label', d3.forceManyBody().strength(-1000));
 
         const link = g.append('g')
             .attr('stroke', '#999')
@@ -144,8 +187,18 @@ function Graph() {
             .attr('fill', d => getNodeColor(d))
             .call(drag(simulation));
 
-        node.append('title')
-            .text(d => d.id);
+        const label = g.append('g')
+            .selectAll("text")
+            .data(graphData.nodes)
+            .enter().append("text")
+            .text(d => d.label_text)
+            .attr("x", d => d.x)
+            .attr("y", d => d.y)
+            .style("fill", "#fff")
+            .style("font-size", "16px")
+            .style("font-family", "RobotoMono Regular, Arial, sans-serif") //fix this source
+            .attr("text-anchor", "right") // Centers text on the node's x coordinate
+            .attr("dy", "1em"); //spacing of text on the y i think around node
 
         //node color based on entity type subject function
         function getNodeColor(node) {
@@ -155,6 +208,8 @@ function Graph() {
                     entityTypeValue === 'name3' ? '#F28A2E' :
                         '#80D2F2';
         };
+
+        simulation.force('linkCollide', d3.forceCollide(linkCollideRadius));
 
         simulation.on('tick', () => {
             link
@@ -166,6 +221,10 @@ function Graph() {
             node
                 .attr('cx', d => d.x)
                 .attr('cy', d => d.y);
+
+            label
+                .attr('x', d => d.x)
+                .attr('y', d => d.y);
         });
 
         // Drag functionality
