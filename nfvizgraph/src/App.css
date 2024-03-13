@@ -30,3 +30,7 @@ td {
 .container-fluid {
   background-color: #121212;
 }
+
+.App {
+  padding: 0;
+}

@@ -119,6 +119,10 @@ function Graph() {
 
         const { width, height } = dimensions;
 
+        //calc initial center coords
+        const initialCenterX = dimensions.width / 2;
+        const initialCenterY = dimensions.height / 2;
+
         const svgElement = d3.select(svgRef.current)
             .attr('width', width)
             .attr('height', height);
@@ -127,21 +131,12 @@ function Graph() {
 
         const g = svgElement.append('g');
 
-        const zoom = d3.zoom()
-            .scaleExtent([0.1, 30])
-            .on('zoom', (event) => {
-                zoomed(event)
-                simulation.restart()
-                startTimer(simulation);
-            });
-
         //define a variable to store the zoom transformation
         let currentTransform = d3.zoomIdentity;
-
-        const initialLinkDistance = 50;
-        const initialChargeStrength = -600;
+        const initialLinkDistance = 15;
+        const initialChargeStrength = -400;
         const linkCollideRadius = 5;
-        const unrelatedLinkDistance = 50;
+        const unrelatedLinkDistance = 15;
         const relatedLinkDistance = 0;
 
         const simulation = d3.forceSimulation(graphData.nodes)
@@ -153,6 +148,9 @@ function Graph() {
             .force('y', d3.forceY().strength(0.1))
             .force('label', d3.forceManyBody().strength(-1000));
 
+        simulation.force('link').distance(d => {
+            return d.source === d.target ? relatedLinkDistance : unrelatedLinkDistance
+        });
         startTimer(simulation);
 
         const link = g.append('g')
@@ -194,6 +192,23 @@ function Graph() {
                         '#80D2F2';
         };
 
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .translateExtent([[0, 0], [width, height]])
+            .on('zoom', (event) => {
+                zoomed(event);
+                simulation.restart();
+                startTimer(simulation);
+            });
+
+        svgElement.call(zoom);
+        
+        //for initial zoom level
+        Promise.resolve().then(() => {
+            const initialTransform = d3.zoomIdentity.translate(width / 2, height / 2).scale(0.6);
+            svgElement.call(zoom.transform, initialTransform);
+        });
+
         function zoomed(event) {
             currentTransform = event.transform;
             g.attr('transform', event.transform);
@@ -208,20 +223,16 @@ function Graph() {
             simulation.force('charge').strength(adjustedChargeStrength);
             simulation.force('collide').strength(adjustedCollideRadius);
             simulation.force('linkCollide', d3.forceCollide(linkCollideRadius));
-            simulation.force('link').distance(d => {
-                return d.source === d.target ? relatedLinkDistance : unrelatedLinkDistance
-            });
 
             const minFontSize = 10;
             const maxFontSize = 16;
+
             const adjustedFontSize = Math.max(minFontSize, Math.min(maxFontSize, 16 / Math.sqrt(zoomScale)));
 
             //adjust font size according to zoom lvl
             label.style('font-size', `${adjustedFontSize}px`);
             startTimer(simulation);
         };
-
-        svgElement.call(zoom);
 
         // Drag functionality
         function drag(simulation) {
@@ -255,18 +266,21 @@ function Graph() {
                 .attr('x1', d => d.source.x)
                 .attr('y1', d => d.source.y)
                 .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y);
+                .attr('y2', d => d.target.y)
+                .attr('transform', `translate(${initialCenterX}, ${initialCenterY})`);
 
             node
                 .attr('cx', d => d.x)
-                .attr('cy', d => d.y);
+                .attr('cy', d => d.y)
+                .attr('transform', `translate(${initialCenterX}, ${initialCenterY})`);
 
             label
                 .attr('x', d => d.x)
-                .attr('y', d => d.y);
+                .attr('y', d => d.y)
+                .attr('transform', `translate(${initialCenterX}, ${initialCenterY})`);
         });
 
-    }, [isLoading, graphData, dimensions]); // Ensure useEffect is called when graphData changes
+    }, [isLoading, graphData, dimensions]);
 
     return (
         <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
