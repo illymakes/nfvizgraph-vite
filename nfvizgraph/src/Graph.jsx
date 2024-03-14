@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as d3 from 'd3';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearchPlus, faSearchMinus, faUndo } from '@fortawesome/free-solid-svg-icons';
 
 function Graph() {
     const [graphData, setGraphData] = useState({ nodes: [], links: [] });
@@ -12,14 +14,14 @@ function Graph() {
     const startTimer = (simulation) => {
         // Stop any existing timer to avoid multiple timers running
         if (timer) timer.stop();
-    
+
         const newTimer = d3.timer(elapsed => {
             if (elapsed > 3000) {
                 simulation.alphaDecay(0.4);
                 newTimer.stop();
             }
         }, 3000);
-    
+
         setTimer(newTimer); // Update the timer state
     };
 
@@ -160,7 +162,7 @@ function Graph() {
         const initialLinkDistance = 8;
         const initialChargeStrength = -400;
         const linkCollideRadius = 5;
-        const unrelatedLinkDistance = 0;
+        const unrelatedLinkDistance = 5;
         const relatedLinkDistance = 0;
 
         const simulation = d3.forceSimulation(graphData.nodes)
@@ -316,7 +318,7 @@ function Graph() {
         const labelForceSimulation = d3.forceSimulation(graphData.nodes)
             .force("charge", d3.forceManyBody().strength(-80))
             .force("collide", d3.forceCollide().radius(d => {
-                return 40;
+                return 80;
             }))
             .on("tick", () => {
                 label
@@ -331,9 +333,25 @@ function Graph() {
     }, [isLoading, graphData, dimensions]);
 
     return (
-        <svg ref={svgRef}>
-            {/* D3 code to render the graph will go here */}
-        </svg>
+        <>
+            <div className="view-buttons-container">
+                <button className="zoom-button-in">
+                    <FontAwesomeIcon icon={faSearchPlus} />
+                </button>
+                <button className="zoom-button-out">
+                    <FontAwesomeIcon icon={faSearchMinus} />
+                </button>
+                <button className="zoom-button-fit">
+                    <img src="/img/zoom-to-fit.svg" alt="Zoom-To-Fit" />
+                </button>
+                <button className="zoom-button-reset">
+                    <FontAwesomeIcon icon={faUndo} />
+                </button>
+            </div>
+            <svg ref={svgRef}>
+                {/* D3 code to render the graph will go here */}
+            </svg>
+        </>
     );
 };
 
