@@ -12,10 +12,10 @@ function Graph() {
         let elapsed = 0;
         const t = d3.timer((elapsed) => {
             if (elapsed > 4000) {
-                simulation.alphaDecay(0.4);
+                simulation.alphaDecay(0.8);
                 t.stop();
             }
-        }, 3000);
+        }, 2000);
     };
 
 
@@ -119,17 +119,16 @@ function Graph() {
 
         const { width, height } = dimensions;
 
-        //calc initial center coords
-        const initialCenterX = dimensions.width / 2;
-        const initialCenterY = dimensions.height / 2;
-
         const svgElement = d3.select(svgRef.current)
             .attr('width', width)
             .attr('height', height);
 
         svgElement.selectAll("*").remove();
 
-        const g = svgElement.append('g');
+        const g = svgElement.append('g')
+            .attr('width', width)
+            .attr('height', height)
+            .style('fill', '#f2f2f2');
 
         //define a variable to store the zoom transformation
         let currentTransform = d3.zoomIdentity;
@@ -202,12 +201,6 @@ function Graph() {
             });
 
         svgElement.call(zoom);
-        
-        //for initial zoom level
-        Promise.resolve().then(() => {
-            const initialTransform = d3.zoomIdentity.translate(width / 2, height / 2).scale(0.6);
-            svgElement.call(zoom.transform, initialTransform);
-        });
 
         function zoomed(event) {
             currentTransform = event.transform;
@@ -266,18 +259,16 @@ function Graph() {
                 .attr('x1', d => d.source.x)
                 .attr('y1', d => d.source.y)
                 .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y)
-                .attr('transform', `translate(${initialCenterX}, ${initialCenterY})`);
+                .attr('y2', d => d.target.y);
 
             node
                 .attr('cx', d => d.x)
-                .attr('cy', d => d.y)
-                .attr('transform', `translate(${initialCenterX}, ${initialCenterY})`);
+                .attr('cy', d => d.y);
 
             label
                 .attr('x', d => d.x)
-                .attr('y', d => d.y)
-                .attr('transform', `translate(${initialCenterX}, ${initialCenterY})`);
+                .attr('y', d => d.y);
+
         });
 
     }, [isLoading, graphData, dimensions]);
