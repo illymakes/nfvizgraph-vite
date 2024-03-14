@@ -150,6 +150,7 @@ function Graph() {
         simulation.force('link').distance(d => {
             return d.source === d.target ? relatedLinkDistance : unrelatedLinkDistance
         });
+
         startTimer(simulation);
 
         const link = g.append('g')
@@ -193,14 +194,16 @@ function Graph() {
 
         const zoom = d3.zoom()
             .scaleExtent([0.1, 4])
-            .translateExtent([[0, 0], [width, height]])
             .on('zoom', (event) => {
                 zoomed(event);
                 simulation.restart();
                 startTimer(simulation);
             });
 
+        //initial zoom level but it has problems
         svgElement.call(zoom);
+        const initialTransform = d3.zoomIdentity.scale(0.8);
+        svgElement.call(zoom.transform, initialTransform);
 
         function zoomed(event) {
             currentTransform = event.transform;
@@ -210,7 +213,7 @@ function Graph() {
             const zoomScale = currentTransform.k;
             const adjustedLinkDistance = initialLinkDistance / zoomScale;
             const adjustedChargeStrength = initialChargeStrength / zoomScale;
-            const adjustedCollideRadius = 12 / zoomScale;
+            const adjustedCollideRadius = 14 / zoomScale;
 
             simulation.force('link').distance(adjustedLinkDistance);
             simulation.force('charge').strength(adjustedChargeStrength);
