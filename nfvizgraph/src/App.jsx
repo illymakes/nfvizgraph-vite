@@ -7,12 +7,14 @@ function App() {
 
   return (
     <div className="container-fluid">
-      <div className="row">
-        New build.
-      </div>
-      <div className="row">
-        <div className="App">
-          <Graph />
+      <div className="row h-100">
+        <div className="col-md-2 side-menu">
+          { /* side menu content goes here */}
+        </div>
+        <div className="col-md-10 app-graph-div">
+          <div className="App bg-dark">
+            <Graph />
+          </div>
         </div>
       </div>
     </div>

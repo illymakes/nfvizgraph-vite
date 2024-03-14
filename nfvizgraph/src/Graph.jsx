@@ -6,18 +6,22 @@ function Graph() {
     const svgRef = useRef();
     const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
     const [isLoading, setIsLoading] = useState(true);
+    const [timer, setTimer] = useState(null);
 
     // Function to start a timer
     const startTimer = (simulation) => {
-        let elapsed = 0;
-        const t = d3.timer((elapsed) => {
-            if (elapsed > 4000) {
-                simulation.alphaDecay(0.8);
-                t.stop();
+        // Stop any existing timer to avoid multiple timers running
+        if (timer) timer.stop();
+    
+        const newTimer = d3.timer(elapsed => {
+            if (elapsed > 3000) {
+                simulation.alphaDecay(0.4);
+                newTimer.stop();
             }
-        }, 2000);
+        }, 3000);
+    
+        setTimer(newTimer); // Update the timer state
     };
-
 
     //useEffect for CSV handling
     useEffect(() => {
@@ -109,8 +113,11 @@ function Graph() {
         }
 
         window.addEventListener('resize', handleResize);
+        handleResize();
 
-        return () => window.removeEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     //useEffect for graph loading
@@ -120,8 +127,13 @@ function Graph() {
         const { width, height } = dimensions;
 
         const svgElement = d3.select(svgRef.current)
-            .attr('width', width)
-            .attr('height', height);
+            .attr('width', '100vw')
+            .attr('height', '100vh')
+            .attr('viewBox', `0 0 ${width} ${height}`)
+            .style('display', 'block')
+            .style('max-width', '100%')
+            .style('max-height', '100vh')
+            .style('margin', 'auto');
 
         svgElement.selectAll("*").remove();
 
@@ -130,12 +142,25 @@ function Graph() {
             .attr('height', height)
             .style('fill', '#f2f2f2');
 
+        const updateLabelFontSize = () => {
+            const labels = d3.select(svgRef.current).selectAll("text");
+
+            labels.each(function (d) {
+                const labelNode = d3.select(this);
+                const bbox = this.getBBox(); // Get bounding box of the label
+                const scale = Math.min(1, Math.sqrt((d.labelArea || 1) / (bbox.width * bbox.height))) * 2.5;
+                const fontSize = (d.initialFontSize || 10) * scale; // Ensure d.initialFontSize is defined or fallback to a default
+
+                labelNode.style('font-size', `${fontSize}px`);
+            });
+        };
+
         //define a variable to store the zoom transformation
         let currentTransform = d3.zoomIdentity;
-        const initialLinkDistance = 15;
+        const initialLinkDistance = 8;
         const initialChargeStrength = -400;
         const linkCollideRadius = 5;
-        const unrelatedLinkDistance = 15;
+        const unrelatedLinkDistance = 0;
         const relatedLinkDistance = 0;
 
         const simulation = d3.forceSimulation(graphData.nodes)
@@ -173,15 +198,23 @@ function Graph() {
 
         const label = g.append('g')
             .selectAll("text")
-            .data(graphData.nodes)
+            .data(graphData.nodes, d => d.id)
             .enter().append("text")
             .text(d => d.label_text)
             .attr("x", d => d.x)
             .attr("y", d => d.y)
-            .style("fill", "#fff")
+            .style('fill', '#fff')
+            .style('font-size', '22px')
             .style("font-family", "RobotoMono Regular, Arial, sans-serif") //fix this source
             .attr("text-anchor", "right") // Centers text on the node's x coordinate
-            .attr("dy", "1em"); //spacing of text on the y i think around node
+            .attr("dy", "-0.5em"); //spacing of text on the y i think around node
+
+        // Ensure initial font size is set for all labels before adjustment
+        label.each(function (d) {
+            d.initialFontSize = 10; // Set the initial font size for each label
+        });
+
+        updateLabelFontSize(); // Adjust font sizes based on bounding box
 
         //node color based on entity type subject function
         function getNodeColor(node) {
@@ -193,7 +226,7 @@ function Graph() {
         };
 
         const zoom = d3.zoom()
-            .scaleExtent([0.1, 4])
+            .scaleExtent([0.4, 4])
             .on('zoom', (event) => {
                 zoomed(event);
                 simulation.restart();
@@ -220,10 +253,10 @@ function Graph() {
             simulation.force('collide').strength(adjustedCollideRadius);
             simulation.force('linkCollide', d3.forceCollide(linkCollideRadius));
 
-            const minFontSize = 10;
-            const maxFontSize = 16;
+            const minFontSize = 22;
+            const maxFontSize = 32;
 
-            const adjustedFontSize = Math.max(minFontSize, Math.min(maxFontSize, 16 / Math.sqrt(zoomScale)));
+            const adjustedFontSize = Math.max(minFontSize, Math.min(maxFontSize, 32 / Math.sqrt(zoomScale)));
 
             //adjust font size according to zoom lvl
             label.style('font-size', `${adjustedFontSize}px`);
@@ -233,20 +266,25 @@ function Graph() {
         // Drag functionality
         function drag(simulation) {
             function dragstarted(event) {
+                d3.select(this).attr('cursor', 'grabbing')
                 if (!event.active) simulation.alphaTarget(0.3).restart();
                 event.subject.fx = event.subject.x;
                 event.subject.fy = event.subject.y;
+                if (timer) timer.stop();
             }
 
             function dragged(event) {
+                d3.select(this).attr('cursor', 'grabbing')
                 event.subject.fx = event.x;
                 event.subject.fy = event.y;
             }
 
             function dragended(event) {
+                d3.select(this).attr('cursor', 'grabbing')
                 if (!event.active) simulation.alphaTarget(0);
                 event.subject.fx = null;
                 event.subject.fy = null;
+                startTimer(simulation);
             }
 
             return d3.drag()
@@ -274,10 +312,26 @@ function Graph() {
 
         });
 
+        //label force sim for spacing
+        const labelForceSimulation = d3.forceSimulation(graphData.nodes)
+            .force("charge", d3.forceManyBody().strength(-80))
+            .force("collide", d3.forceCollide().radius(d => {
+                return 40;
+            }))
+            .on("tick", () => {
+                label
+                    .attr('x', d => d.x)
+                    .attr('y', d => d.y)
+            });
+
+        setTimeout(() => {
+            labelForceSimulation.stop();
+        }, 4000);
+
     }, [isLoading, graphData, dimensions]);
 
     return (
-        <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
+        <svg ref={svgRef}>
             {/* D3 code to render the graph will go here */}
         </svg>
     );

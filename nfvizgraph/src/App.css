@@ -31,6 +31,19 @@ td {
   background-color: #121212;
 }
 
+.side-menu {
+  background-color: #1a1a1a;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.app-graph-div {
+  padding: 0;
+}
+
 .App {
   padding: 0;
+  height: 100vh;
+  overflow-y: none;
 }
