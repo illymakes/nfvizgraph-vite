@@ -10,6 +10,59 @@ function Graph() {
     const [isLoading, setIsLoading] = useState(true);
     const [timer, setTimer] = useState(null);
 
+    // zoomRef setup
+    const zoomRef = useRef(d3.zoom().scaleExtent([0.1, 8]));
+
+    //zoom setup and behavior
+    const setupZoom = () => {
+        const svg = d3.select(svgRef.current);
+        const g = svg.select('g');
+
+        //zoom behavior
+        const zoomBehavior = d3.zoom()
+            .scaleExtent([0.1, 8])
+            .on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+
+        svg.call(zoomBehavior);
+        zoomRef.current = zoomBehavior;
+    };
+
+    //initial zoom func
+    const setInitialZoom = () => {
+        const svg = d3.select(svgRef.current);
+        svg.transition().duration(750).call(zoomRef.current.transform, d3.zoomIdentity);
+    };
+
+    //zoom to fit func
+    const zoomToFit = () => {
+        const svg = d3.select(svgRef.current);
+        const g = svg.select('g');
+        const bounds = g.node().getBBox();
+        const parent = svg.node().getBoundingClientRect();
+        const width = bounds.width,
+            height = bounds.height;
+        const fullWidth = parent.width,
+            fullHeight = parent.height;
+        const midX = bounds.x + width / 2,
+            midY = bounds.y + height / 2;
+        if (width === 0 || height === 0) return; // Nothing to fit
+        const scale = 0.95 / Math.max(width / fullWidth, height / fullHeight);
+        const translate = [(fullWidth / 2 - scale * midX), (fullHeight / 2 - scale * midY)];
+
+        // Apply the transform to the g element
+        g.transition().duration(750).attr("transform", `translate(${translate})scale(${scale})`);
+
+        // Update the zoom behavior's internal state to match the transformation
+        zoomRef.current.transform(svg, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+    };
+
+    //reset view func
+    const resetView = () => {
+        setInitialZoom();
+    };
+
     // Function to start a timer
     const startTimer = (simulation) => {
         // Stop any existing timer to avoid multiple timers running
@@ -137,25 +190,14 @@ function Graph() {
             .style('max-height', '100vh')
             .style('margin', 'auto');
 
+        svgElement.call(zoomRef.current);
+
         svgElement.selectAll("*").remove();
 
         const g = svgElement.append('g')
             .attr('width', width)
             .attr('height', height)
             .style('fill', '#f2f2f2');
-
-        const updateLabelFontSize = () => {
-            const labels = d3.select(svgRef.current).selectAll("text");
-
-            labels.each(function (d) {
-                const labelNode = d3.select(this);
-                const bbox = this.getBBox(); // Get bounding box of the label
-                const scale = Math.min(1, Math.sqrt((d.labelArea || 1) / (bbox.width * bbox.height))) * 2.5;
-                const fontSize = (d.initialFontSize || 10) * scale; // Ensure d.initialFontSize is defined or fallback to a default
-
-                labelNode.style('font-size', `${fontSize}px`);
-            });
-        };
 
         //define a variable to store the zoom transformation
         let currentTransform = d3.zoomIdentity;
@@ -208,15 +250,8 @@ function Graph() {
             .style('fill', '#fff')
             .style('font-size', '22px')
             .style("font-family", "RobotoMono Regular, Arial, sans-serif") //fix this source
-            .attr("text-anchor", "right") // Centers text on the node's x coordinate
-            .attr("dy", "-0.5em"); //spacing of text on the y i think around node
-
-        // Ensure initial font size is set for all labels before adjustment
-        label.each(function (d) {
-            d.initialFontSize = 10; // Set the initial font size for each label
-        });
-
-        updateLabelFontSize(); // Adjust font sizes based on bounding box
+            .attr("text-anchor", "right")
+            .attr("dy", "-0.5em");
 
         //node color based on entity type subject function
         function getNodeColor(node) {
@@ -236,9 +271,9 @@ function Graph() {
             });
 
         //initial zoom level but it has problems
-        svgElement.call(zoom);
-        const initialTransform = d3.zoomIdentity.scale(0.8);
-        svgElement.call(zoom.transform, initialTransform);
+        // svgElement.call(zoom);
+        // const initialTransform = d3.zoomIdentity.scale(0.8);
+        // svgElement.call(zoom.transform, initialTransform);
 
         function zoomed(event) {
             currentTransform = event.transform;
@@ -318,13 +353,15 @@ function Graph() {
         const labelForceSimulation = d3.forceSimulation(graphData.nodes)
             .force("charge", d3.forceManyBody().strength(-80))
             .force("collide", d3.forceCollide().radius(d => {
-                return 80;
+                return 40;
             }))
             .on("tick", () => {
                 label
                     .attr('x', d => d.x)
                     .attr('y', d => d.y)
             });
+
+        setupZoom();
 
         setTimeout(() => {
             labelForceSimulation.stop();
@@ -341,10 +378,10 @@ function Graph() {
                 <button className="zoom-button-out">
                     <FontAwesomeIcon icon={faSearchMinus} />
                 </button>
-                <button className="zoom-button-fit">
+                <button className="zoom-button-fit" onClick={zoomToFit}>
                     <img src="/img/zoom-to-fit.svg" alt="Zoom-To-Fit" />
                 </button>
-                <button className="zoom-button-reset">
+                <button className="zoom-button-reset" onClick={resetView}>
                     <FontAwesomeIcon icon={faUndo} />
                 </button>
             </div>
