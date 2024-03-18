@@ -32,7 +32,54 @@ function Graph() {
     //initial zoom func
     const setInitialZoom = () => {
         const svg = d3.select(svgRef.current);
-        svg.transition().duration(750).call(zoomRef.current.transform, d3.zoomIdentity);
+        const initialTransform = d3.zoomIdentity.translate(dimensions.width / 2, dimensions.height / 2).scale(0.9).translate(-dimensions.width / 2, -dimensions.height / 2);
+        svg.transition().duration(750).call(zoomRef.current.transform, initialTransform);
+    };
+
+    //zoom in func
+    const zoomIn = () => {
+        const svg = d3.select(svgRef.current);
+        const g = svg.select('g');
+
+        const zoomInFactor = 1.05;
+
+        const currentZoom = d3.zoomTransform(svg.node());
+
+        const newScale = currentZoom.k * zoomInFactor;
+
+        const centerX = (dimensions.width / 2 - currentZoom.x) / currentZoom.k;
+        const centerY = (dimensions.height / 2 - currentZoom.y) / currentZoom.k;
+        const newX = dimensions.width / 2 - centerX * newScale;
+        const newY = dimensions.height / 2 - centerY * newScale;
+
+        const newTransform = d3.zoomIdentity.translate(newX, newY).scale(newScale);
+
+        g.transition().duration(750).attr("transform", newTransform);
+
+        zoomRef.current.transform(svg, newTransform);
+    };
+
+    //zoom out func
+    const zoomOut = () => {
+        const svg = d3.select(svgRef.current);
+        const g = svg.select('g');
+
+        const zoomOutFactor = 0.9;
+
+        const currentZoom = d3.zoomTransform(svg.node());
+
+        const newScale = currentZoom.k * zoomOutFactor;
+
+        const centerX = (dimensions.width / 2 - currentZoom.x) / currentZoom.k;
+        const centerY = (dimensions.height / 2 - currentZoom.y) / currentZoom.k;
+        const newX = dimensions.width / 2 - centerX * newScale;
+        const newY = dimensions.height / 2 - centerY * newScale;
+
+        const newTransform = d3.zoomIdentity.translate(newX, newY).scale(newScale);
+
+        g.transition().duration(750).attr("transform", newTransform);
+
+        zoomRef.current.transform(svg, newTransform);
     };
 
     //zoom to fit func
@@ -66,16 +113,19 @@ function Graph() {
     // Function to start a timer
     const startTimer = (simulation) => {
         // Stop any existing timer to avoid multiple timers running
-        if (timer) timer.stop();
+        return new Promise((resolve) => {
+            if (timer) timer.stop();
 
-        const newTimer = d3.timer(elapsed => {
-            if (elapsed > 3000) {
-                simulation.alphaDecay(0.4);
-                newTimer.stop();
-            }
-        }, 3000);
+            const newTimer = d3.timer(elapsed => {
+                if (elapsed > 1000) {
+                    simulation.alphaDecay(0.4);
+                    newTimer.stop();
+                    resolve();
+                }
+            }, 1000);
 
-        setTimer(newTimer); // Update the timer state
+            setTimer(newTimer); // Update the timer state
+        });
     };
 
     //useEffect for CSV handling
@@ -262,44 +312,6 @@ function Graph() {
                         '#80D2F2';
         };
 
-        const zoom = d3.zoom()
-            .scaleExtent([0.4, 4])
-            .on('zoom', (event) => {
-                zoomed(event);
-                simulation.restart();
-                startTimer(simulation);
-            });
-
-        //initial zoom level but it has problems
-        // svgElement.call(zoom);
-        // const initialTransform = d3.zoomIdentity.scale(0.8);
-        // svgElement.call(zoom.transform, initialTransform);
-
-        function zoomed(event) {
-            currentTransform = event.transform;
-            g.attr('transform', event.transform);
-
-            //adjust link distance and charge strength based on zoom level
-            const zoomScale = currentTransform.k;
-            const adjustedLinkDistance = initialLinkDistance / zoomScale;
-            const adjustedChargeStrength = initialChargeStrength / zoomScale;
-            const adjustedCollideRadius = 14 / zoomScale;
-
-            simulation.force('link').distance(adjustedLinkDistance);
-            simulation.force('charge').strength(adjustedChargeStrength);
-            simulation.force('collide').strength(adjustedCollideRadius);
-            simulation.force('linkCollide', d3.forceCollide(linkCollideRadius));
-
-            const minFontSize = 22;
-            const maxFontSize = 32;
-
-            const adjustedFontSize = Math.max(minFontSize, Math.min(maxFontSize, 32 / Math.sqrt(zoomScale)));
-
-            //adjust font size according to zoom lvl
-            label.style('font-size', `${adjustedFontSize}px`);
-            startTimer(simulation);
-        };
-
         // Drag functionality
         function drag(simulation) {
             function dragstarted(event) {
@@ -361,6 +373,14 @@ function Graph() {
                     .attr('y', d => d.y)
             });
 
+        //async func to wait for timer
+        const waitForTimerAndInitializeZoom = async () => {
+            await startTimer(simulation);
+            setInitialZoom();
+        };
+
+        waitForTimerAndInitializeZoom();
+
         setupZoom();
 
         setTimeout(() => {
@@ -372,10 +392,10 @@ function Graph() {
     return (
         <>
             <div className="view-buttons-container">
-                <button className="zoom-button-in">
+                <button className="zoom-button-in" onClick={zoomIn}>
                     <FontAwesomeIcon icon={faSearchPlus} />
                 </button>
-                <button className="zoom-button-out">
+                <button className="zoom-button-out" onClick={zoomOut}>
                     <FontAwesomeIcon icon={faSearchMinus} />
                 </button>
                 <button className="zoom-button-fit" onClick={zoomToFit}>
