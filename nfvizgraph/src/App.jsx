@@ -26,9 +26,11 @@ function App() {
   return (
     <div className="container-fluid">
       <div className="row h-100">
-        <div className="col-md-2 side-menu d-flex flex-column align-items-center">
-          <div className="logo my-3 px-3" style={{ maxwidth: '90%' }}>
-            <img src="./img/vite.svg" alt="Logo" className="img-fluid" />
+        <div className="col-md-2 side-menu d-flex flex-column justify-content-center align-items-center" style={{ padding: '2px' }}>
+          <div className="logo my-3 justify-content-center align-items-center" style={{ maxwidth: '90%' }}>
+            <div className="side-menu-logos justify-content-center align-items-center">
+            <img src="./img/vite.svg" alt="Logo" className="img-fluid logoImg" />
+            </div>
             <h6 className="mt-2 text-center title-font" style={{ marginTop: '8px' }}>Visualization</h6>
           </div>
           <div className="menu-buttons d-flex flex-column align-items-center my-auto w-100">
