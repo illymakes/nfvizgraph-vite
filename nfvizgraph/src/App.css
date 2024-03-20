@@ -36,6 +36,13 @@ td {
   height: 100vh;
   overflow-y: auto;
   padding: 0;
+  min-width: 220px;
+}
+
+@media (max-width: 768px) {
+  .side-menu {
+    min-width: 150px; /* Adjust for smaller screens */
+  }
 }
 
 .app-graph-div {
@@ -43,9 +50,10 @@ td {
 }
 
 .App {
+  position: relative;
   padding: 0;
   height: 100vh;
-  overflow-y: none;
+  overflow-y: hidden;
 }
 
 .view-buttons-container {

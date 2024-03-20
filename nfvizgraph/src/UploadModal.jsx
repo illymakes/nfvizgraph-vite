@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import * as d3 from 'd3';
 
 const UploadModal = ({ isVisible, onClose, onFileUpload }) => {
   if (!isVisible) return null;
@@ -13,7 +14,7 @@ const UploadModal = ({ isVisible, onClose, onFileUpload }) => {
   };
 
   const handlePasteData = () => {
-    const csvData = d3.csvParse(document.getElementById('csvInput').value);
+    const csvData = document.getElementById('csvInput').value;
     onFileUpload(csvData);
   };
 
@@ -42,12 +43,12 @@ const UploadModal = ({ isVisible, onClose, onFileUpload }) => {
         <h5>Upload your CSV file:</h5>
         <div className="dropzone" id="drag-drop-area" onDragOver={handleDragOver} onDrop={handleDrop}>
           Drag and drop your CSV here or click&nbsp;
-          <span id="browse-button" onClick={triggerFileInputClick}>browse</span>
+          <span id="browse-button" onClick={triggerFileInputClick} style={{curosr: 'pointer'}}>browse</span>
         </div>
-        <input type="file" accept=".csv" onChange={handleFileChange} ref={fileInputRef} style={{ display: 'none' }} />
+        <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} ref={fileInputRef} />
         <h5>Or paste in your CSV data:</h5>
         <textarea id="csvInput" placeholder="Paste your CSV data here."></textarea>
-        <button id="modal-submit-btn">Submit</button>
+        <button id="modal-submit-btn" onClick={handlePasteData}>Submit</button>
       </div>
     </div>
   );

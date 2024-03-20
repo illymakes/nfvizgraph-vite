@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as d3 from 'd3';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus, faUndo } from '@fortawesome/free-solid-svg-icons';
 
-function Graph() {
+function Graph({ csvData }) {
     const [graphData, setGraphData] = useState({ nodes: [], links: [] });
     const svgRef = useRef();
     const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
     const [isLoading, setIsLoading] = useState(true);
     const [timer, setTimer] = useState(null);
-
-    // zoomRef setup
     const zoomRef = useRef(d3.zoom().scaleExtent([0.1, 8]));
 
     //zoom setup and behavior
@@ -112,7 +111,6 @@ function Graph() {
 
     // Function to start a timer
     const startTimer = (simulation) => {
-        // Stop any existing timer to avoid multiple timers running
         return new Promise((resolve) => {
             if (timer) timer.stop();
 
@@ -123,15 +121,19 @@ function Graph() {
                     resolve();
                 }
             }, 1000);
-
             setTimer(newTimer); // Update the timer state
         });
     };
 
     //useEffect for CSV handling
     useEffect(() => {
+        if (!csvData) {
+            setIsLoading(true);
+            return;
+        }
+
         const loadData = async () => {
-            const data = await d3.csv("./testCSV4.csv");
+            const data = d3.csvParse(csvData);
             const filteredData = data.filter(d => d.has_canonical_name_object && d.has_canonical_name_subject);
             const links = filteredData.map(d => ({
                 source: d.entity_id,
@@ -209,7 +211,7 @@ function Graph() {
         };
 
         loadData();
-    }, []);
+    }, [csvData]);
 
     // useEffect for window resize
     useEffect(() => {
