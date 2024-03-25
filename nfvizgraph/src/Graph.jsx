@@ -12,8 +12,11 @@ function Graph({ csvData }) {
     const [isLoading, setIsLoading] = useState(true);
     const [timer, setTimer] = useState(null);
     const zoomRef = useRef(d3.zoom().scaleExtent([0.1, 8]));
-    const [tooltipData, setTooltipData] = useState({ visible: false, content: {}, x: 0, y: 0 });
-
+    const [tooltip, setTooltip] = useState({
+        visible: false,
+        content: {},
+        position: { x: 0, y: 0 },
+    });
 
     //zoom setup and behavior
     const setupZoom = () => {
@@ -294,7 +297,17 @@ function Graph({ csvData }) {
             .join('circle')
             .attr('r', 5)
             .attr('fill', d => getNodeColor(d))
-            .call(drag(simulation));
+            .call(drag(simulation))
+            .on('click', (event, d) => {
+                setTooltip({
+                    visible: true,
+                    content: {
+                        'Entity ID': d.entity_id,
+                        // Add other pieces of data you want to show
+                    },
+                    position: { x: event.pageX, y: event.pageY },
+                });
+            });
 
         const label = g.append('g')
             .selectAll("text")
@@ -321,7 +334,7 @@ function Graph({ csvData }) {
         // Drag functionality
         function drag(simulation) {
             function dragstarted(event) {
-                d3.select(this).attr('cursor', 'grabbing')
+                d3.select(this).attr('cursor', 'none')
                 if (!event.active) simulation.alphaTarget(0.3).restart();
                 event.subject.fx = event.subject.x;
                 event.subject.fy = event.subject.y;
@@ -329,13 +342,13 @@ function Graph({ csvData }) {
             }
 
             function dragged(event) {
-                d3.select(this).attr('cursor', 'grabbing')
+                d3.select(this).attr('cursor', 'none')
                 event.subject.fx = event.x;
                 event.subject.fy = event.y;
             }
 
             function dragended(event) {
-                d3.select(this).attr('cursor', 'grabbing')
+                d3.select(this).attr('cursor', 'none')
                 if (!event.active) simulation.alphaTarget(0);
                 event.subject.fx = null;
                 event.subject.fy = null;
@@ -385,19 +398,6 @@ function Graph({ csvData }) {
             setInitialZoom();
         };
 
-        //tooltip display functionality
-        node.on('click', (event, d) => {
-            event.stopPropagation();
-
-            setTooltipData({
-                visible: true,
-                content: d,
-                x: event.pageX,
-                y: event.pageY
-            });
-        });
-
-
         waitForTimerAndInitializeZoom();
 
         setupZoom();
@@ -431,14 +431,8 @@ function Graph({ csvData }) {
             <svg ref={svgRef}>
                 {/* D3 code to render the graph will go here */}
             </svg>
-            <Tooltip
-                visible={tooltipData.visible}
-                content={tooltipData.content}
-                onClose={() => setTooltipData({ ...tooltipData, visible: false })}
-                style={{ top: tooltipData.y + 10, left: tooltipData.x + 10 }} // Adjust as needed
-            />
         </>
     );
-};
+}
 
 export default Graph;

@@ -1,29 +1,32 @@
 import React from 'react';
 
-const Tooltip = ({ visible, content, onClose }) => {
-  if (!visible) return null;
+function Tooltip({ visible, content, position }) {
+  if (!visible) {
+    return null;
+  }
 
-  const combinedStyle = {
+  const style = {
     position: 'absolute',
-      border: '1px solid #ddd',
-      background: '#fff',
-      padding: '10px',
-      pointerEvents: 'auto',
-      zIndex: 1000
+    top: position.y,
+    left: position.x,
+    backgroundColor: 'white',
+    color: '#121212',
+    border: '1px solid black',
+    padding: '10px',
+    borderRadius: '5px',
+    pointerEvents: 'none',
+    zIndex: 100,
   };
 
   return (
-    <div style={combinedStyle}
-    onClick={(e) => e.stopPropagation()}
-    >
-      {/* Optionally, add a close button */}
-      <button onClick={onClose} style={{ position: 'absolute', top: 0, right: 0 }}>X</button>
-      {/* Display data */}
+    <div style={style}>
       {Object.keys(content).map(key => (
-        <div key={key}>{`${key}: ${content[key]}`}</div>
+        <div key={key}>
+          <strong>{key}:</strong> {content[key]}
+        </div>
       ))}
     </div>
   );
-};
+}
 
 export default Tooltip;
