@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus, faUndo } from '@fortawesome/free-solid-svg-icons';
+import Tooltip from './Tooltip';
 
 function Graph({ csvData }) {
     const [graphData, setGraphData] = useState({ nodes: [], links: [] });
@@ -11,6 +12,8 @@ function Graph({ csvData }) {
     const [isLoading, setIsLoading] = useState(true);
     const [timer, setTimer] = useState(null);
     const zoomRef = useRef(d3.zoom().scaleExtent([0.1, 8]));
+    const [tooltipData, setTooltipData] = useState({ visible: false, content: {}, x: 0, y: 0 });
+
 
     //zoom setup and behavior
     const setupZoom = () => {
@@ -233,7 +236,10 @@ function Graph({ csvData }) {
 
         const { width, height } = dimensions;
 
-        const svgElement = d3.select(svgRef.current)
+        const svgElement = d3.select(svgRef.current);
+        svgElement.selectAll("*").remove();
+
+        svgElement
             .attr('width', '100vw')
             .attr('height', '100vh')
             .attr('viewBox', `0 0 ${width} ${height}`)
@@ -243,8 +249,6 @@ function Graph({ csvData }) {
             .style('margin', 'auto');
 
         svgElement.call(zoomRef.current);
-
-        svgElement.selectAll("*").remove();
 
         const g = svgElement.append('g')
             .attr('width', width)
@@ -381,6 +385,19 @@ function Graph({ csvData }) {
             setInitialZoom();
         };
 
+        //tooltip display functionality
+        node.on('click', (event, d) => {
+            event.stopPropagation();
+
+            setTooltipData({
+                visible: true,
+                content: d,
+                x: event.pageX,
+                y: event.pageY
+            });
+        });
+
+
         waitForTimerAndInitializeZoom();
 
         setupZoom();
@@ -388,6 +405,10 @@ function Graph({ csvData }) {
         setTimeout(() => {
             labelForceSimulation.stop();
         }, 4000);
+
+        simulation.alpha(1).restart();
+
+        return () => simulation.stop();
 
     }, [isLoading, graphData, dimensions]);
 
@@ -410,6 +431,12 @@ function Graph({ csvData }) {
             <svg ref={svgRef}>
                 {/* D3 code to render the graph will go here */}
             </svg>
+            <Tooltip
+                visible={tooltipData.visible}
+                content={tooltipData.content}
+                onClose={() => setTooltipData({ ...tooltipData, visible: false })}
+                style={{ top: tooltipData.y + 10, left: tooltipData.x + 10 }} // Adjust as needed
+            />
         </>
     );
 };

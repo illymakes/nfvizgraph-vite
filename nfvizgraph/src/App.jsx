@@ -37,7 +37,7 @@ function App() {
 
   return (
     <div className="container-fluid">
-      <div className="row h-100">
+      <div className="row h-100 flex-nowrap">
         <div className="col-md-2 side-menu d-flex flex-column justify-content-center align-items-center" style={{ padding: '2px' }}>
           <div className="logo my-3 justify-content-center align-items-center" style={{ maxwidth: '90%' }}>
             <div className="side-menu-logos justify-content-center align-items-center">
