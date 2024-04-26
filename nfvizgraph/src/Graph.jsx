@@ -13,7 +13,7 @@ function Graph() {
 
     useEffect(() => {
         const svg = d3.select(svgRef.current)
-            .attr('width', '100vw')
+            .attr('width', '100%')
             .attr('height', '100%')
             .style('background-color', "#121212");
 
@@ -23,19 +23,10 @@ function Graph() {
             setTimeout(() => setInitialZoom(svg), 100);
         }
 
-        const zoomBehavior = d3.zoom()
-            .scaleExtent([0.5, 2]) // Limit scale to 50% min and 200% max
-            .on("zoom", (event) => {
-                svg.selectAll('g').attr("transform", event.transform);
-            });
-
-        svg.call(zoomBehavior);
-
         const resizeObserver = new ResizeObserver(entries => {
             if (entries.length === 0 || entries[0].target !== containerRef.current) return;
             svg.attr("width", '100vw')
                 .attr("height", '100%');
-            setInitialZoom(svg); // Reapply the initial zoom when resized
         });
 
         resizeObserver.observe(containerRef.current);
@@ -45,19 +36,6 @@ function Graph() {
         };
     }, []);
 
-    function setInitialZoom(svg) {
-        const svgRect = svg.node().getBoundingClientRect();
-        const width = svgRect.width;
-        const height = svgRect.height;
-
-        const initialTransform = d3.zoomIdentity
-            .translate(width / 2, height / 2)
-            .scale(0.9)
-            .translate(-width / 2, -height / 2);
-
-        svg.transition().duration(750).call(zoomRef.current.transform, initialTransform);
-    }
-
     function initializeGraph(svg) {
         const width = parseInt(svg.style("width"));
         const height = parseInt(svg.style("height"));
@@ -65,8 +43,17 @@ function Graph() {
         svg.attr("width", width)
             .attr("height", height);
 
-        const graphContainer = svg.append('g');
+        const zoomContainer = svg.append('g');
+        const graphContainer = zoomContainer.append('g');
 
+        const zoomBehavior = d3.zoom()
+            .scaleExtent([0.1, 8])
+            .on("zoom", (event) => {
+                zoomContainer.attr("transform", event.transform);
+
+            });
+
+        svg.call(zoomBehavior);
 
         d3.csv('./games.csv').then(data => {
             const nodes = data.map(d => ({
@@ -107,14 +94,26 @@ function Graph() {
                 .force('collide', d3.forceCollide(5))
                 .force('x', d3.forceX().strength(0.1))
                 .force('y', d3.forceY().strength(0.1))
-                .force('label', d3.forceManyBody().strength(-1000));
+                .force('label', d3.forceManyBody().strength(-1000))
+                .on('tick', () => {
+                    link.attr("x1", d => d.source.x)
+                        .attr("y1", d => d.source.y)
+                        .attr("x2", d => d.target.x)
+                        .attr("y2", d => d.target.y);
+
+                    node.attr("cx", d => d.x)
+                        .attr("cy", d => d.y);
+
+                    labels.attr('x', d => d.x + 8)
+                        .attr('y', d => d.y) + 3;
+                });
 
             const link = graphContainer.append("g")
                 .selectAll("line")
                 .data(links)
                 .enter().append("line")
-                .attr("stroke", "#ff00f3")
-                .attr("stroke-opacity", 0.2)
+                .attr("stroke", "#B300AA")
+                .attr("stroke-opacity", 0.9)
                 .attr('stroke-width', '1.5');
 
             const node = graphContainer.append("g")
@@ -123,7 +122,7 @@ function Graph() {
                 .enter().append("circle")
                 .attr("r", 5)
                 .attr("fill", d => colorByConsole(d.console))
-                .attr('stroke', '#ff00f3')
+                .attr('stroke', '#B300AA')
                 .attr('stroke-width', '1.5')
                 .call(drag(simulation));
 
@@ -142,19 +141,32 @@ function Graph() {
 
             node.call(drag(simulation));
 
-            simulation.on("tick", () => {
-                link.attr("x1", d => d.source.x)
-                    .attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x)
-                    .attr("y2", d => d.target.y);
+            // simulation.on("tick", () => {
+            //     link.attr("x1", d => d.source.x)
+            //         .attr("y1", d => d.source.y)
+            //         .attr("x2", d => d.target.x)
+            //         .attr("y2", d => d.target.y);
 
-                node.attr("cx", d => d.x)
-                    .attr("cy", d => d.y);
+            //     node.attr("cx", d => d.x)
+            //         .attr("cy", d => d.y);
 
-                labels.attr('x', d => d.x + 8)
-                    .attr('y', d => d.y) + 3;
-            });
+            //     labels.attr('x', d => d.x + 8)
+            //         .attr('y', d => d.y) + 3;
+            // });
         });
+    }
+
+    function setInitialZoom(svg) {
+        const svgRect = svg.node().getBoundingClientRect();
+        const width = svgRect.width;
+        const height = svgRect.height;
+
+        const initialTransform = d3.zoomIdentity
+            .translate(width / 2, height / 2)
+            .scale(0.9)
+            .translate(-width / 2, -height / 2);
+
+        svg.transition().duration(750).call(zoomRef.current.transform, initialTransform);
     }
 
     function colorByConsole(consoleName) {
