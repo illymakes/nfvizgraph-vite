@@ -47,12 +47,15 @@ td {
 
 .app-graph-div {
   padding: 0;
+  width: 100%;
+  height: 100vh;
 }
 
 .App {
   position: relative;
   padding: 0;
-  height: 100vh;
+  width: 100vw;
+  height: auto;
   overflow-y: hidden;
 }
 

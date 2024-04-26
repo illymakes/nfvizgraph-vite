@@ -8,7 +8,6 @@ import UploadModal from './UploadModal';
 
 function App() {
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
-  const [csvData, setCsvData] = useState(null);
   const [isAppVisible, setIsAppVisible] = useState(false);
 
 
@@ -41,7 +40,7 @@ function App() {
         <div className="col-md-2 side-menu d-flex flex-column justify-content-center align-items-center" style={{ padding: '2px' }}>
           <div className="logo my-3 justify-content-center align-items-center" style={{ maxwidth: '90%' }}>
             <div className="side-menu-logos justify-content-center align-items-center">
-              <img src="./img/vite.svg" alt="Logo" className="img-fluid logoImg" />
+              <img src="./img/rocket.svg" alt="Logo" className="img-fluid logoImg" />
             </div>
             <h6 className="mt-2 text-center title-font" style={{ marginTop: '8px' }}>Visualization</h6>
           </div>
@@ -70,8 +69,8 @@ function App() {
           </div>
         </div>
         <div className="col-md-10 app-graph-div">
-          <div className="App bg-dark" style={{ display: isAppVisible ? 'block' : 'none' }}>
-            <Graph csvData={csvData} />
+          <div className="App bg-dark">
+            <Graph />
           </div>
         </div>
       </div>
