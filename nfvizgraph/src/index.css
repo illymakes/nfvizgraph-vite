@@ -124,16 +124,16 @@ h1 {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 26px;
+  font-size: 24px;
   color: #f2f2f2;
   transition: color 0.3s, background-color 0.3s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
+  width: 32px;
+  height: 32px;
+  line-height: 28px;
   text-align: center;
   box-sizing: border-box;
 }
@@ -155,22 +155,22 @@ h1 {
   font-family: 'Roboto Mono', monospace;
 
   .dropzone:hover {
-    border-color: #007bff;
+    border-color: #ff00f3;
   }
 
   .dropzone:dragover {
-    border-color: #007bff;
+    border-color: #ff00f3;
   }
 }
 
 #browse-button {
   cursor: pointer;
-  color: #52a7c9;
+  color: #ff00f3;
   text-decoration: underline;
 }
 
 #browse-button:hover {
-  color: #80d2f2;
+  color: #ff56f7;
 }
 
 #file-input {
@@ -190,7 +190,7 @@ h1 {
 }
 
 #modal-submit-btn {
-  background-color: #3243a6;
+  background-color: #ff00f3;
   color: #f2f2f2;
   border: none;
   border-radius: 5px;
@@ -202,5 +202,5 @@ h1 {
 }
 
 #modal-submit-btn:hover {
-  background-color: #475bce;
+  background-color: #ff56f7;
 }

@@ -43,7 +43,7 @@ const UploadModal = ({ isVisible, onClose, onFileUpload }) => {
         <h5>Upload your CSV file:</h5>
         <div className="dropzone" id="drag-drop-area" onDragOver={handleDragOver} onDrop={handleDrop}>
           Drag and drop your CSV here or click&nbsp;
-          <span id="browse-button" style={{curosr: 'pointer'}}>browse</span>
+          <span id="browse-button" style={{cursor: 'pointer'}}>browse</span>
         </div>
         <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileChange} ref={fileInputRef} />
         <h5>Or paste in your CSV data:</h5>
