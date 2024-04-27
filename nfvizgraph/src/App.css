@@ -116,6 +116,127 @@ button {
   cursor: pointer;
 }
 
-svg {
-  border-color: red;
+/* tooltips */
+
+.tooltip-node-content {
+  position: 'absolute';
+  pointer-events: 'none';
+  z-index: 100;
+  white-space: 'nowrap';
+  font-family: 'Roboto Mono', monospace;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid #ddd!important;
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* link tooltip tables */
+.tooltip-link-content {
+  width: 100%;
+  height: 100%;
+  padding: 0!important;
+  margin: 0!important;
+  border: none;
+}
+
+.tooltip-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0!important;
+  border: none;
+}
+
+.tooltip-table td {
+  padding: 8px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(221, 221, 221, 0.4);
+  border-right: 1px solid rgba(221, 221, 221, 0.4);
+  margin: 0!important;
+}
+
+.tooltip-table th {
+  padding: 8px;
+  text-align: left;
+  margin: 0!important;
+}
+
+.tooltip-table th {
+  background-color: rgba(255, 0, 243, 0.1);
+  color: white;
+  margin: 0!important;
+}
+
+.tooltip-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.tooltip-table tr:last-child td {
+  border-bottom: none;
+}
+
+.tooltip-table tr th:last-child, .tooltip-table tr td:last-child {
+  border-right: none;
+}
+
+/* link sidebar tables */
+
+.sidebar-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.sidebar-table td {
+  padding: 8px;
+  text-align: left;
+  font-size: 14px;
+  border: 1px solid rgba(221, 221, 221, 0.4);
+  margin: 0!important;
+}
+
+.sidebar-table th {
+  padding: 8px;
+  text-align: left;
+  margin: 0!important;
+  border: 1px solid rgba(221, 221, 221, 0.4);
+}
+
+.sidebar-table th {
+  background-color: rgba(255, 0, 243, 0.1);
+  color: white;
+  margin: 0!important;
+}
+
+.sidebar-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+
+
+/* Sidebar Styling */
+.close-sidebar {
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 24px;
+  color: #f2f2f2;
+  transition: color 0.3s, background-color 0.3s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.close-sidebar:hover {
+  color: #ff00f3;
+  background-color: #333;
 }

@@ -5,7 +5,7 @@ const Tooltip = ({ visible, content, x, y }) => {
     position: 'absolute',
     top: `${y}px`,
     left: `${x}px`,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
     color: 'white',
     border: '1px solid #ddd',
     borderRadius: '4px',
