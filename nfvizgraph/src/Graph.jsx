@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +9,7 @@ function Graph() {
     const svgRef = useRef(null);
     const containerRef = useRef(null);
     const initialized = useRef(false);
-    const zoomRef = useRef(d3.zoom().scaleExtent([0.1, 8]));
+    const [tooltipData, setTooltipData] = useState({ visible: false, content: '', x: 0, y: 0 });
 
     useEffect(() => {
         const svg = d3.select(svgRef.current)
@@ -20,12 +20,20 @@ function Graph() {
         if (!initialized.current) {
             initialized.current = true;
             initializeGraph(svg);
-            setTimeout(() => setInitialZoom(svg), 100);
         }
+
+        const zoomBehavior = d3.zoom()
+            .scaleExtent([0.1, 8])
+            .on("zoom", (event) => {
+                svg.select('g').attr("transform", event.transform);
+
+            });
+
+        svg.call(zoomBehavior);
 
         const resizeObserver = new ResizeObserver(entries => {
             if (entries.length === 0 || entries[0].target !== containerRef.current) return;
-            svg.attr("width", '100vw')
+            svg.attr("width", '100%')
                 .attr("height", '100%');
         });
 
@@ -43,17 +51,7 @@ function Graph() {
         svg.attr("width", width)
             .attr("height", height);
 
-        const zoomContainer = svg.append('g');
-        const graphContainer = zoomContainer.append('g');
-
-        const zoomBehavior = d3.zoom()
-            .scaleExtent([0.1, 8])
-            .on("zoom", (event) => {
-                zoomContainer.attr("transform", event.transform);
-
-            });
-
-        svg.call(zoomBehavior);
+        const graphContainer = svg.append('g');
 
         d3.csv('./games.csv').then(data => {
             const nodes = data.map(d => ({
@@ -124,6 +122,24 @@ function Graph() {
                 .attr("fill", d => colorByConsole(d.console))
                 .attr('stroke', '#B300AA')
                 .attr('stroke-width', '1.5')
+                .on('mouseover', (event, d) => {
+                    const [x, y] = d3.pointer(event, svg.node());
+                    const contentHTML = 
+                    `<b>${d.id}</b><br>
+                    <b>Console:</b> ${d.console}<br>
+                    <b>Year:</b> ${d.year}<br>
+                    <b>Developer:</b> ${d.group}<br>
+                    <b>Publisher:</b> ${d.publisher}`;
+                    setTooltipData({
+                        visible: true,
+                        content: contentHTML,
+                        x: x + 20,
+                        y: y - 50
+                    });
+                })
+                .on('mouseout', () => {
+                    setTooltipData({ visible: false, content: '', x: 0, y: 0 });
+                })
                 .call(drag(simulation));
 
             const labels = graphContainer.append("g")
@@ -140,35 +156,8 @@ function Graph() {
                 .attr("dy", "-0.5em");
 
             node.call(drag(simulation));
-
-            // simulation.on("tick", () => {
-            //     link.attr("x1", d => d.source.x)
-            //         .attr("y1", d => d.source.y)
-            //         .attr("x2", d => d.target.x)
-            //         .attr("y2", d => d.target.y);
-
-            //     node.attr("cx", d => d.x)
-            //         .attr("cy", d => d.y);
-
-            //     labels.attr('x', d => d.x + 8)
-            //         .attr('y', d => d.y) + 3;
-            // });
         });
     }
-
-    function setInitialZoom(svg) {
-        const svgRect = svg.node().getBoundingClientRect();
-        const width = svgRect.width;
-        const height = svgRect.height;
-
-        const initialTransform = d3.zoomIdentity
-            .translate(width / 2, height / 2)
-            .scale(0.9)
-            .translate(-width / 2, -height / 2);
-
-        svg.transition().duration(750).call(zoomRef.current.transform, initialTransform);
-    }
-
     function colorByConsole(consoleName) {
         const colorMap = {
             'Switch': '#FF7AF3',   // pink
@@ -208,6 +197,12 @@ function Graph() {
     return (
         <div ref={containerRef} style={{ width: '100%', height: '100vh' }}>
             <svg ref={svgRef}></svg>
+            <Tooltip
+                visible={tooltipData.visible}
+                content={tooltipData.content}
+                x={tooltipData.x}
+                y={tooltipData.y}
+            />
         </div>
     );
 }

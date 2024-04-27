@@ -112,7 +112,7 @@ h1 {
   background: #1a1a1a;
   border: 2px solid #444;
   align-items: center;
-  padding: 30px;
+  padding: 30px 30px 22px 30px;
   border-radius: 5px;
   color: #f2f2f2;
   width: fit-content;
@@ -127,19 +127,19 @@ h1 {
   font-size: 24px;
   color: #f2f2f2;
   transition: color 0.3s, background-color 0.3s;
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  align-items: flex-end;
   justify-content: center;
+  padding: 0;
   border-radius: 50%;
   width: 32px;
   height: 32px;
-  line-height: 28px;
   text-align: center;
   box-sizing: border-box;
 }
 
 .close-upload-modal:hover {
-  color: #ff4747;
+  color: #ff00f3;
   background-color: #333;
 }
 
@@ -167,10 +167,45 @@ h1 {
   cursor: pointer;
   color: #ff00f3;
   text-decoration: underline;
+  position: relative;
+}
+
+#browse-button:hover .browse-tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 
 #browse-button:hover {
   color: #ff56f7;
+}
+
+.browse-tooltip {
+  visibility: hidden;
+  width: 120px;
+  background-color: #333;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.browse-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
 }
 
 #file-input {
@@ -190,17 +225,54 @@ h1 {
 }
 
 #modal-submit-btn {
+  position: relative;
   background-color: #ff00f3;
   color: #f2f2f2;
   border: none;
   border-radius: 5px;
-  margin-top: 12px;
+  margin-top: 16px;
+  margin-bottom: 2px;
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-family: 'Roboto Mono', monospace;
 }
 
 #modal-submit-btn:hover {
   background-color: #ff56f7;
+}
+
+#modal-submit-btn:hover .submit-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.submit-tooltip {
+  visibility: hidden;
+  width: 120px;
+  background-color: #333;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 114%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.submit-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
 }
