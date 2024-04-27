@@ -69,16 +69,6 @@ h1 {
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
-.menu-button-1 img {
-  width: 32px;
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
-}
-
-.menu-button-1 img:hover {
-  content: url('./img/chart-scatter-2.svg');
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
-}
-
 .bottom-button {
   color: #c2c2c2;
   fill: #c2c2c2;

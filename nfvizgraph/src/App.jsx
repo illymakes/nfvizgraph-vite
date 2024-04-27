@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload, faTable, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import FileUploadIcon from '@mui/icons-material/FileUploadOutlined';
+import ScatterPlotIcon from '@mui/icons-material/ScatterPlotOutlined';
+import TableChartIcon from '@mui/icons-material/TableChartOutlined';
+import InfoIcon from '@mui/icons-material/InfoOutlined';
 import './App.css';
 import Graph from './Graph';
 import UploadModal from './UploadModal';
@@ -46,26 +48,26 @@ function App() {
           </div>
           <div className="menu-buttons d-flex flex-column align-items-center my-auto w-100">
             <div className="menu-button-1 text-center" onClick={handleUploadClick}>
-              <FontAwesomeIcon icon={faUpload} className="icon-button my-2" />
+              <FileUploadIcon className="icon-button my-2" style={{ fontSize: '36px' }} />
               <p style={{ fontSize: '12px' }}>
                 upload
               </p>
             </div>
             <div className="menu-button-1 text-center">
-              <img src="./img/chart-scatter.svg" alt="plot" className="icon-button my-2" />
+              <ScatterPlotIcon className="icon-button my-2" style={{ fontSize: '36px' }} />
               <p style={{ fontSize: '12px' }}>
                 plot
               </p>
             </div>
             <div className="menu-button-1 text-center">
-              <FontAwesomeIcon icon={faTable} className="icon-button my-2" />
+              <TableChartIcon className="icon-button my-2" style={{ fontSize: '36px' }} />
               <p style={{ fontSize: '12px' }}>
                 table
               </p>
             </div>
           </div>
           <div className="bottom-button mt-auto mb-3">
-            <FontAwesomeIcon icon={faInfoCircle} className="icon-button my-2" />
+            <InfoIcon className="icon-button my-2" />
           </div>
         </div>
         <div className="col-md-10 app-graph-div">

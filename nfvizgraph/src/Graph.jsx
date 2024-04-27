@@ -141,7 +141,7 @@ function Graph() {
                 .selectAll("line")
                 .data(links)
                 .enter().append("line")
-                .attr("stroke", "#B300AA")
+                .attr("stroke", "rgba(255, 0, 243, 1)")
                 .attr("stroke-opacity", 0.9)
                 .attr('stroke-width', '1.5')
                 .on('mouseover', (event, d) => {
@@ -195,7 +195,7 @@ function Graph() {
                 .enter().append("circle")
                 .attr("r", 5)
                 .attr("fill", d => colorByConsole(d.console))
-                .attr('stroke', '#B300AA')
+                .attr('stroke', 'rgba(255, 0, 243, 1)')
                 .attr('stroke-width', '1.5')
                 .on('click', (event, d) => {
                     event.stopPropagation();
@@ -307,21 +307,21 @@ function Graph() {
     }
 
     function drag(simulation) {
-        function dragstarted(event) {
+        function dragstarted(event, d) {
             if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
+            d.fx = d.x;
+            d.fy = d.y;
         }
 
-        function dragged(event) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
         }
 
-        function dragended(event) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0)
+            //event.subject.fx = null; --enabling these will reset the node positions so they are no longer sticky
+            //event.subject.fy = null;
         }
 
         return d3.drag()
