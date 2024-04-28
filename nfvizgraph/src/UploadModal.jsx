@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import * as d3 from 'd3';
 
 const UploadModal = ({ isVisible, onClose, onFileUpload }) => {
   if (!isVisible) return null;
 
   const fileInputRef = useRef(null);
+  const modalContentRef = useRef(null);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -13,14 +13,17 @@ const UploadModal = ({ isVisible, onClose, onFileUpload }) => {
     }
   };
 
-  const handlePasteData = () => {
-    const csvData = document.getElementById('csvInput').value;
-    onFileUpload(csvData);
-  };
+  // Below are some of the functions that would be used to handle the file upload functionality but it's been disabled 
+  // for the purposes of this prototype.
+  
+  // const handlePasteData = () => {
+  //   const csvData = document.getElementById('csvInput').value;
+  //   onFileUpload(csvData);
+  // };
 
-  const triggerFileInputClick = () => {
-    fileInputRef.current.click();
-  };
+  // const triggerFileInputClick = () => {
+  //   fileInputRef.current.click();
+  // };
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -36,12 +39,18 @@ const UploadModal = ({ isVisible, onClose, onFileUpload }) => {
     }
   };
 
+  const handleBackdropClick = (event) => {
+    if (modalContentRef.current && !modalContentRef.current.contains(event.target)) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="upload-modal">
-      <div className="modal-content">
+    <div className="upload-modal-backdrop" onClick={handleBackdropClick}>
+      <div className="modal-content" ref={modalContentRef} onClick={e => e.stopPropagation()} >
         <span className="close-upload-modal" onClick={onClose}>×</span>
         <h5>Upload your CSV file:</h5>
-        <div className="dropzone" id="drag-drop-area" onDragOver={handleDragOver} onDrop={handleDrop}>
+        <div className="dropzone" id="drag-drop-area" onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
           Drag and drop your CSV here or click&nbsp;
           <span id="browse-button" style={{ cursor: 'pointer' }}>
             browse

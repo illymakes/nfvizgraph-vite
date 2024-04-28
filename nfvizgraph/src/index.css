@@ -83,7 +83,7 @@ h1 {
 
 /* upload modal styling */
 
-.upload-modal {
+.upload-modal-backdrop {
   position: fixed;
   display: flex;
   top: 0;

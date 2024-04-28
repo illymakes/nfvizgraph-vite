@@ -7,10 +7,13 @@ import InfoIcon from '@mui/icons-material/InfoOutlined';
 import './App.css';
 import Graph from './Graph';
 import UploadModal from './UploadModal';
+import AlertModal from './AlertModal';
 
 function App() {
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
   const [isAppVisible, setIsAppVisible] = useState(false);
+  const [isAlertModalVisible, setIsAlertModalVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
 
   const handleUploadClick = () => {
@@ -22,18 +25,24 @@ function App() {
   };
 
   const handleFileUpload = (input) => {
+    //This is how the csv file uploaded would normally be handled, but it is disabled for the 
+    //purposes of this prototype
+
     // Check if input is a File object
-    if (input instanceof File) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCsvData(event.target.result);
-      };
-      reader.readAsText(input);
-    } else if (typeof input === 'string') {
-      setCsvData(input);
-    }
-    handleCloseModal();
-    setIsAppVisible(true);
+    // if (input instanceof File) {
+    //   const reader = new FileReader();
+    //   reader.onload = (event) => {
+    //     setCsvData(event.target.result);
+    //   };
+    //   reader.readAsText(input);
+    // } else if (typeof input === 'string') {
+    //   setCsvData(input);
+    // }
+    // handleCloseModal();
+    // setIsAppVisible(true);
+
+    setAlertMessage("Function removed for this prototype.");
+    setIsAlertModalVisible(true);
   };
 
   return (
@@ -80,6 +89,11 @@ function App() {
         isVisible={isUploadModalVisible}
         onClose={handleCloseModal}
         onFileUpload={handleFileUpload}
+      />
+      <AlertModal
+        isVisible={isAlertModalVisible}
+        onClose={() => setIsAlertModalVisible(false)}
+        message={alertMessage}
       />
     </div >
   );
