@@ -6,14 +6,17 @@ import TableChartIcon from '@mui/icons-material/TableChartOutlined';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
 import './App.css';
 import Graph from './Graph';
+import Table from './Table';
 import UploadModal from './UploadModal';
 import AlertModal from './AlertModal';
 
+
 function App() {
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
-  const [isAppVisible, setIsAppVisible] = useState(false);
   const [isAlertModalVisible, setIsAlertModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [csvData, setCsvData] = useState(null);
+  const [currentView, setCurrentView] = useState('graph');
 
 
   const handleUploadClick = () => {
@@ -45,6 +48,14 @@ function App() {
     setIsAlertModalVisible(true);
   };
 
+  const handlePlotClick = () => {
+    setCurrentView('graph');
+  };
+
+  const handleTableClick = () => {
+    setCurrentView('table');
+  };
+
   return (
     <div className="container-fluid">
       <div className="row h-100 flex-nowrap">
@@ -62,13 +73,13 @@ function App() {
                 upload
               </p>
             </div>
-            <div className="menu-button-1 text-center">
+            <div className="menu-button-1 text-center" onClick={handlePlotClick}>
               <ScatterPlotIcon className="icon-button my-2" style={{ fontSize: '36px' }} />
               <p style={{ fontSize: '12px' }}>
                 plot
               </p>
             </div>
-            <div className="menu-button-1 text-center">
+            <div className="menu-button-1 text-center" onClick={handleTableClick}>
               <TableChartIcon className="icon-button my-2" style={{ fontSize: '36px' }} />
               <p style={{ fontSize: '12px' }}>
                 table
@@ -81,7 +92,7 @@ function App() {
         </div>
         <div className="col-md-10 app-graph-div">
           <div className="App bg-dark">
-            <Graph />
+            {currentView === 'graph' ? <Graph /> : <Table csvData={csvData} />}
           </div>
         </div>
       </div>
