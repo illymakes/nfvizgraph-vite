@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearchPlus, faSearchMinus, faUndo } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from './Tooltip';
 import Sidebar from './Sidebar';
 
@@ -13,6 +11,7 @@ function Graph() {
     const initialized = useRef(false);
     const [tooltipData, setTooltipData] = useState({ visible: false, content: '', x: 0, y: 0 });
     const [sidebarData, setSidebarData] = useState({ visible: false, content: '' });
+    const [selectedNode, setSelectedNode] = useState(null);
 
     useEffect(() => {
         const svg = d3.select(svgRef.current)
@@ -67,6 +66,19 @@ function Graph() {
         };
     }, [sidebarData.visible]);
 
+    useEffect(() => {
+        if (!svgRef.current) return;
+
+        const svg = d3.select(svgRef.current);
+        const node = svg.selectAll("circle");
+
+        node.each(function (d) {
+            d3.select(this)
+                .attr('stroke', d === selectedNode ? 'yellow' : 'rgba(255, 0, 243, 1)')
+                .attr('stroke-width', d === selectedNode ? '3' : '1.5');
+        });
+
+    }, [selectedNode]);
 
     function initializeGraph(svg) {
         const width = parseInt(svg.style("width"));
@@ -197,8 +209,12 @@ function Graph() {
                 .attr("fill", d => colorByConsole(d.console))
                 .attr('stroke', 'rgba(255, 0, 243, 1)')
                 .attr('stroke-width', '1.5')
+                .attr('stroke', d => d === selectedNode ? 'yellow' : 'rgba(255, 0, 243, 1)')
+                .attr('stroke-width', d => d === selectedNode ? '3' : '1.5')
                 .on('click', (event, d) => {
                     event.stopPropagation();
+                    setSelectedNode(d === selectedNode ? null : d);
+                    updateNodeStyles();
                 })
                 .on('mouseover', (event, d) => {
                     const [x, y] = d3.pointer(event, svg.node());
@@ -247,6 +263,8 @@ function Graph() {
                     visible: true,
                     content: contentHTML
                 });
+
+
             }
 
             node.on('click', (event, d) => handleNodeClick(event, d));

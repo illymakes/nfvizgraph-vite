@@ -242,6 +242,11 @@ button {
 }
 
 /* Table Styling */
+.table-div {
+  height: 100vh;
+  width: 100vw;
+}
+
 .ag-theme-alpine-dark {
   --ag-foreground-color: #f2f2f2;
   --ag-border-color: #333;

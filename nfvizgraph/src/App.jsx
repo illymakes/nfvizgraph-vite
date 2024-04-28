@@ -18,6 +18,8 @@ function App() {
   const [csvData, setCsvData] = useState(null);
   const [currentView, setCurrentView] = useState('graph');
 
+  const graphStyle = currentView === 'graph' ? { display: 'block' } : { display: 'none' };
+  const tableStyle = currentView === 'table' ? { display: 'block' } : { display: 'none' };
 
   const handleUploadClick = () => {
     setUploadModalVisible(true);
@@ -92,7 +94,12 @@ function App() {
         </div>
         <div className="col-md-10 app-graph-div">
           <div className="App bg-dark">
-            {currentView === 'graph' ? <Graph /> : <Table csvData={csvData} />}
+            <div style={graphStyle}>
+              <Graph />
+            </div>
+            <div className="table-div" style={{ ...tableStyle }}>
+              <Table csvData={csvData} />
+            </div>
           </div>
         </div>
       </div>
