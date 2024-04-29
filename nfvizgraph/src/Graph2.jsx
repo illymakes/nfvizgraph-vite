@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import * as d3 from 'd3';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchPlus, faSearchMinus, faUndo } from '@fortawesome/free-solid-svg-icons';
+import Tooltip from "./Tooltip";
 
 function Graph() {
     const [graphData, setGraphData] = useState({ nodes: [], links: [] });
@@ -9,6 +10,7 @@ function Graph() {
     const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
     const [isLoading, setIsLoading] = useState(true);
     const [timer, setTimer] = useState(null);
+    const [tooltipData, setTooltipData] = useState({ visible: false, content: '', x: 0, y: 0 });
 
     // zoomRef setup
     const zoomRef = useRef(d3.zoom().scaleExtent([0.1, 8]));
@@ -278,7 +280,21 @@ function Graph() {
             .selectAll('line')
             .data(graphData.links)
             .join('line')
-            .attr('stroke-width', 2);
+            .attr('stroke-width', 2)
+            .on('mouseover', (event, d) => {
+                const [x, y] = d3.pointer(event, g.node());
+                const sourceData = links.find(node => node.id === d.source.id);
+                const targetData = links.find(node => node.id === d.target.id);
+                const contentHTML = `
+                Table data will go here
+                `;
+                setTooltipData({
+                    visible: true,
+                    content: `<div class='tooltip-link-content'>${contentHTML}</div>`,
+                    x: x + 5,
+                    y: y - 5
+                });
+            });
 
         const node = g.append('g')
             .attr('stroke', '#fff')
@@ -288,7 +304,27 @@ function Graph() {
             .join('circle')
             .attr('r', 5)
             .attr('fill', d => getNodeColor(d))
-            .call(drag(simulation));
+            .call(drag(simulation))
+            .on('click', (event, d) => {
+                event.stopPropagation();
+                setSeletedNode(d === selectedNode ? null : d);
+            })
+            .on('mouseover', (event, d) => {
+                const [x, y] = d3.pointer(event, g.node());
+                const contentHTML =
+                    `node tooltip data goes here
+                `;
+                setTooltipData({
+                    visible: true,
+                    content: contentHTML,
+                    x: x + 5,
+                    y: y - 5
+                });
+            })
+            .on('mouseout', () => {
+                setTooltipData({ visible: false, content: '', x: 0, y: 0 });
+            });
+        ;
 
         const label = g.append('g')
             .selectAll("text")
@@ -405,6 +441,12 @@ function Graph() {
                     <FontAwesomeIcon icon={faUndo} />
                 </button>
             </div>
+            <Tooltip
+                visible={tooltipData.visible}
+                content={tooltipData.content}
+                x={tooltipData.x}
+                y={tooltipData.y}
+            />
             <svg ref={svgRef}>
                 {/* D3 code to render the graph will go here */}
             </svg>
