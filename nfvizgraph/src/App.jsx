@@ -17,6 +17,7 @@ function App() {
   const [alertMessage, setAlertMessage] = useState('');
   const [csvData, setCsvData] = useState(null);
   const [currentView, setCurrentView] = useState('graph');
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const graphStyle = currentView === 'graph' ? { display: 'block' } : { display: 'none' };
   const tableStyle = currentView === 'table' ? { display: 'block' } : { display: 'none' };
@@ -95,7 +96,7 @@ function App() {
         <div className="col-md-10 app-graph-div">
           <div className="App bg-dark">
             <div style={graphStyle}>
-              <Graph />
+              <Graph  />
             </div>
             <div className="table-div" style={{ ...tableStyle }}>
               <Table csvData={csvData} />

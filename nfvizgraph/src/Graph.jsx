@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Tooltip from './Tooltip';
 import Sidebar from './Sidebar';
 
-function Graph() {
+function Graph({}) {
     const svgRef = useRef(null);
     const containerRef = useRef(null);
     const sidebarRef = useRef(null);
@@ -207,8 +207,6 @@ function Graph() {
                 .enter().append("circle")
                 .attr("r", 5)
                 .attr("fill", d => colorByConsole(d.console))
-                .attr('stroke', 'rgba(255, 0, 243, 1)')
-                .attr('stroke-width', '1.5')
                 .attr('stroke', d => d === selectedNode ? 'yellow' : 'rgba(255, 0, 243, 1)')
                 .attr('stroke-width', d => d === selectedNode ? '3' : '1.5')
                 .on('click', (event, d) => {
@@ -250,6 +248,7 @@ function Graph() {
                 .attr("dy", "-0.5em");
 
             node.call(drag(simulation));
+
 
             function handleNodeClick(event, d) {
                 const contentHTML = `
@@ -310,6 +309,21 @@ function Graph() {
             link.on('click', (event, d) => handleLinkClick(event, d));
 
         });
+    }
+
+    useEffect(() => {
+        updateNodeStyles();
+    }, [selectedNode]);
+
+    function updateNodeStyles() {
+        const svg = d3.select(svgRef.current);
+        svg.selectAll("circle")
+            .each(function (d) {
+                d3.select(this)
+                    .attr('stroke', d === selectedNode ? 'yellow' : 'rgba(255, 0, 243, 1)')
+                    .attr('stroke-width', d === selectedNode ? '3' : '1.5');
+            });
+            console.log('updateNodeStyles called')
     }
 
     function colorByConsole(consoleName) {
