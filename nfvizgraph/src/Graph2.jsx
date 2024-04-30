@@ -251,6 +251,9 @@ function Graph() {
             .attr('height', height)
             .style('fill', '#f2f2f2');
 
+        //implement legend
+        createLegend(g);
+
         //define a variable to store the zoom transformation
         let currentTransform = d3.zoomIdentity;
         const initialLinkDistance = 8;
@@ -338,6 +341,44 @@ function Graph() {
             .style("font-family", "RobotoMono Regular, Arial, sans-serif") //fix this source
             .attr("text-anchor", "right")
             .attr("dy", "-0.5em");
+
+        //legend func
+        function createLegend(svgElement) {
+            const legendPadding = 10;
+            const legendMargin = { top: 20, left: 20 };
+            const lineHeight = 20;
+            const types = ['name1', 'name2', 'name3'];
+
+            const rectHeight = types.length * lineHeight + 2 * legendPadding;
+            const rectWidth = 120;
+
+            const legend = svgElement.append('g')
+                .attr('transform', `translate(${legendMargin.left}, ${legendMargin.top})`);
+
+            legend.append('rect')
+                .attr('width', rectWidth)
+                .attr('height', rectHeight)
+                .attr('fill', '#fff')
+                .attr('opacity', 0.8)
+                .attr('stroke', '#ccc')
+                .attr('rx', 5);
+
+            types.forEach((type, index) => {
+                const legendRow = legend.append('g')
+                    .attr('transform', `translate(${legendPadding}, ${(index * lineHeight) + legendPadding + lineHeight / 2})`);
+
+                legendRow.append('circle')
+                    .attr('r', 5)
+                    .attr('fill', getNodeColor({ has_entity_type_subject: type }));
+
+                legendRow.append('text')
+                    .attr('x', 15)
+                    .attr('y', 0)
+                    .text(type)
+                    .style('font-size', '12px')
+                    .attr('alignment-baseline', 'middle');
+            });
+        }
 
         //node color based on entity type subject function
         function getNodeColor(node) {
