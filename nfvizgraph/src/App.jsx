@@ -9,7 +9,7 @@ import Graph from './Graph';
 import Table from './Table';
 import UploadModal from './UploadModal';
 import AlertModal from './AlertModal';
-
+import InfoModal from './InfoModal';
 
 function App() {
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
@@ -17,10 +17,14 @@ function App() {
   const [alertMessage, setAlertMessage] = useState('');
   const [csvData, setCsvData] = useState(null);
   const [currentView, setCurrentView] = useState('graph');
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
 
   const graphStyle = currentView === 'graph' ? { display: 'block' } : { display: 'none' };
   const tableStyle = currentView === 'table' ? { display: 'block' } : { display: 'none' };
+
+  const toggleInfoModal = () => {
+    setIsInfoModalVisible(!isInfoModalVisible);
+  };
 
   const handleUploadClick = () => {
     setUploadModalVisible(true);
@@ -89,14 +93,14 @@ function App() {
               </p>
             </div>
           </div>
-          <div className="bottom-button mt-auto mb-3">
+          <div className="bottom-button mt-auto mb-3" onClick={toggleInfoModal}>
             <InfoIcon className="icon-button my-2" />
           </div>
         </div>
         <div className="col-md-10 app-graph-div">
           <div className="App bg-dark">
             <div style={graphStyle}>
-              <Graph  />
+              <Graph />
             </div>
             <div className="table-div" style={{ ...tableStyle }}>
               <Table csvData={csvData} />
@@ -113,6 +117,12 @@ function App() {
         isVisible={isAlertModalVisible}
         onClose={() => setIsAlertModalVisible(false)}
         message={alertMessage}
+      />
+      <InfoModal
+        isVisible={isInfoModalVisible}
+        onClose={toggleInfoModal}
+        imageUrl="./img/illymakes_logo_200px.png"
+        content={<div>This app was made with ❤️ by <a href='https://illymakes.com/'>illymakes</a>.</div>}
       />
     </div >
   );

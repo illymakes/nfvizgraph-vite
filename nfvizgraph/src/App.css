@@ -54,15 +54,35 @@ td {
 
 @media (max-width: 768px) {
   .side-menu {
-    min-width: 150px;
-    max-width: 150px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: auto;
+    z-index: 1000;
+    width: 100%;
+    display: flex;
+    flex-direction: row!important;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  .menu-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+  }
+
+  .menu-button-1 {
+    margin: 0 10px;
   }
 
   .app-graph-div svg {
-    display: block;
-    width: calc(100vw - 150px);
-    height: 100%;
-    box-sizing: border-box;
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
   }
 }
 
