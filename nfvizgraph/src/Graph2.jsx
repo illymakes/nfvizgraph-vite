@@ -233,10 +233,12 @@ function Graph() {
 
         const { width, height } = dimensions;
 
+        const totalWidth = 120;
+
         const svgElement = d3.select(svgRef.current)
             .attr('width', '100vw')
             .attr('height', '100vh')
-            .attr('viewBox', `0 0 ${width} ${height}`)
+            .attr('viewBox', `0 0 ${totalWidth} ${height}`)
             .style('display', 'block')
             .style('max-width', '100%')
             .style('max-height', '100vh')
@@ -286,16 +288,16 @@ function Graph() {
             .attr('stroke-width', 2)
             .on('mouseover', (event, d) => {
                 const [x, y] = d3.pointer(event, g.node());
-                const sourceData = links.find(node => node.id === d.source.id);
-                const targetData = links.find(node => node.id === d.target.id);
+                const offsetX = 450;
+                const offsetY = 0;
                 const contentHTML = `
                 Table data will go here
                 `;
                 setTooltipData({
                     visible: true,
                     content: `<div class='tooltip-link-content'>${contentHTML}</div>`,
-                    x: x + 5,
-                    y: y - 5
+                    x: x + offsetX,
+                    y: y + offsetY
                 });
             });
 
@@ -314,14 +316,16 @@ function Graph() {
             })
             .on('mouseover', (event, d) => {
                 const [x, y] = d3.pointer(event, g.node());
+                const offsetX = 450;
+                const offsetY = 0;
                 const contentHTML =
                     `node tooltip data goes here
                 `;
                 setTooltipData({
                     visible: true,
                     content: contentHTML,
-                    x: x + 5,
-                    y: y - 5
+                    x: x + offsetX,
+                    y: y + offsetY
                 });
             })
             .on('mouseout', () => {
