@@ -18,9 +18,12 @@ function App() {
   const [csvData, setCsvData] = useState(null);
   const [currentView, setCurrentView] = useState('graph');
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+  const [selectedGameName, setSelectedGameName] = useState(null);
+
 
   const graphStyle = currentView === 'graph' ? { display: 'block' } : { display: 'none' };
   const tableStyle = currentView === 'table' ? { display: 'block' } : { display: 'none' };
+
 
   const toggleInfoModal = () => {
     setIsInfoModalVisible(!isInfoModalVisible);
@@ -65,8 +68,32 @@ function App() {
 
   return (
     <div className="container-fluid">
+      <div
+        style={{
+          position: 'fixed',
+          top: 10,
+          right: 10,
+          zIndex: 999999,
+          padding: '6px 10px',
+          background: 'rgba(0,0,0,0.75)',
+          color: '#fff',
+          fontSize: 12,
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: 8,
+          pointerEvents: 'none',
+        }}
+      >
+        selected: {selectedGameName ?? 'none'}
+      </div>
+
       <div className="row h-100 flex-nowrap">
-        <div className="col-md-2 side-menu d-flex flex-column justify-content-center align-items-center" style={{ padding: '2px' }}>
+        <div
+          className="col-md-2 side-menu d-flex flex-column justify-content-center align-items-center"
+          style={{ padding: '2px' }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+
           <div className="logo my-3 justify-content-center align-items-center" style={{ maxwidth: '90%' }}>
             <div className="side-menu-logos justify-content-center align-items-center">
               <img src="./img/rocket.svg" alt="Logo" className="img-fluid logoImg" />
@@ -100,10 +127,17 @@ function App() {
         <div className="col-md-10 app-graph-div">
           <div className="App bg-dark">
             <div style={graphStyle}>
-              <Graph />
+              <Graph
+                selectedGameName={selectedGameName}
+                onSelectGame={setSelectedGameName}
+              />
             </div>
             <div className="table-div" style={{ ...tableStyle }}>
-              <Table csvData={csvData} />
+              <Table
+                csvData={csvData}
+                selectedGameName={selectedGameName}
+                onSelectGame={setSelectedGameName}
+              />
             </div>
           </div>
         </div>

@@ -1,17 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Tooltip from './Tooltip';
 import Sidebar from './Sidebar';
 
-function Graph({}) {
+function Graph({ selectedGameName, onSelectGame }) {
     const svgRef = useRef(null);
     const containerRef = useRef(null);
     const sidebarRef = useRef(null);
     const initialized = useRef(false);
     const [tooltipData, setTooltipData] = useState({ visible: false, content: '', x: 0, y: 0 });
     const [sidebarData, setSidebarData] = useState({ visible: false, content: '' });
-    const [selectedNode, setSelectedNode] = useState(null);
 
     useEffect(() => {
         const svg = d3.select(svgRef.current)
@@ -48,11 +47,13 @@ function Graph({}) {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-
-            if (sidebarData.visible &&
+            if (
+                sidebarData.visible &&
                 sidebarRef.current && !sidebarRef.current.contains(event.target) &&
-                svgRef.current && !svgRef.current.contains(event.target)) {
+                svgRef.current && !svgRef.current.contains(event.target)
+            ) {
                 setSidebarData({ visible: false, content: '' });
+                onSelectGame(null);
             }
         };
 
@@ -64,21 +65,8 @@ function Graph({}) {
             clearTimeout(timer);
             document.removeEventListener('click', handleClickOutside);
         };
-    }, [sidebarData.visible]);
+    }, [sidebarData.visible, onSelectGame]);
 
-    useEffect(() => {
-        if (!svgRef.current) return;
-
-        const svg = d3.select(svgRef.current);
-        const node = svg.selectAll("circle");
-
-        node.each(function (d) {
-            d3.select(this)
-                .attr('stroke', d === selectedNode ? 'yellow' : 'rgba(255, 0, 243, 1)')
-                .attr('stroke-width', d === selectedNode ? '3' : '1.5');
-        });
-
-    }, [selectedNode]);
 
     function initializeGraph(svg) {
         const width = parseInt(svg.style("width"));
@@ -90,8 +78,11 @@ function Graph({}) {
         const graphContainer = svg.append('g');
 
         svg.on("click", (event) => {
-            if (event.target === svg.node()) {
+            const tag = event.target?.tagName?.toLowerCase();
+            const clickedNodeOrLink = tag === 'circle' || tag === 'line' || tag === 'text';
+            if (!clickedNodeOrLink) {
                 setSidebarData({ visible: false, content: '' });
+                onSelectGame(null);
             }
         });
 
@@ -207,12 +198,26 @@ function Graph({}) {
                 .enter().append("circle")
                 .attr("r", 5)
                 .attr("fill", d => colorByConsole(d.console))
-                .attr('stroke', d => d === selectedNode ? 'yellow' : 'rgba(255, 0, 243, 1)')
-                .attr('stroke-width', d => d === selectedNode ? '3' : '1.5')
+                .attr('stroke', 'rgba(255, 0, 243, 1)')
+                .attr('stroke-width', 1.5)
                 .on('click', (event, d) => {
                     event.stopPropagation();
-                    setSelectedNode(d === selectedNode ? null : d);
-                    updateNodeStyles();
+
+                    const next = (selectedGameName === d.id) ? null : d.id;
+                    onSelectGame(next);
+
+                    if (next) {
+                        const contentHTML = `
+      <h3>${d.id}</h3>
+      <p><strong>Console:</strong> ${d.console}</p>
+      <p><strong>Year:</strong> ${d.year}</p>
+      <p><strong>Developer:</strong> ${d.group}</p>
+      <p><strong>Publisher:</strong> ${d.publisher}</p>
+    `;
+                        setSidebarData({ visible: true, content: contentHTML });
+                    } else {
+                        setSidebarData({ visible: false, content: '' });
+                    }
                 })
                 .on('mouseover', (event, d) => {
                     const [x, y] = d3.pointer(event, svg.node());
@@ -248,25 +253,6 @@ function Graph({}) {
                 .attr("dy", "-0.5em");
 
             node.call(drag(simulation));
-
-
-            function handleNodeClick(event, d) {
-                const contentHTML = `
-                <h3>${d.id}</h3>
-                    <p><strong>Console:</strong> ${d.console}</p>
-                    <p><strong>Year:</strong> ${d.year}</p>
-                    <p><strong>Developer:</strong> ${d.group}</p>
-                    <p><strong>Publisher:</strong> ${d.publisher}</p>
-                `;
-                setSidebarData({
-                    visible: true,
-                    content: contentHTML
-                });
-
-
-            }
-
-            node.on('click', (event, d) => handleNodeClick(event, d));
 
             function handleLinkClick(event, d) {
                 const sourceData = nodes.find(node => node.id === d.source.id);
@@ -313,17 +299,18 @@ function Graph({}) {
 
     useEffect(() => {
         updateNodeStyles();
-    }, [selectedNode]);
+    }, [selectedGameName]);
 
     function updateNodeStyles() {
         const svg = d3.select(svgRef.current);
-        svg.selectAll("circle")
-            .each(function (d) {
-                d3.select(this)
-                    .attr('stroke', d === selectedNode ? 'yellow' : 'rgba(255, 0, 243, 1)')
-                    .attr('stroke-width', d === selectedNode ? '3' : '1.5');
-            });
-            console.log('updateNodeStyles called')
+
+        svg.selectAll("circle").each(function (d) {
+            const isSelected = selectedGameName && d.id === selectedGameName;
+
+            d3.select(this)
+                .attr('stroke', isSelected ? '#ffffff' : 'rgba(255, 0, 243, 1)')
+                .attr('stroke-width', isSelected ? 4 : 1.5);
+        });
     }
 
     function colorByConsole(consoleName) {
@@ -375,7 +362,10 @@ function Graph({}) {
                 ref={sidebarRef}
                 isVisible={sidebarData.visible}
                 content={sidebarData.content}
-                onClose={() => setSidebarData({ visible: false, content: '' })}
+                onClose={() => {
+                    setSidebarData({ visible: false, content: '' });
+                }}
+
             />
         </div>
     );
