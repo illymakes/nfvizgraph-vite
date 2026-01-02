@@ -11,6 +11,10 @@ function Graph({ selectedGameName, onSelectGame }) {
     const initialized = useRef(false);
     const [tooltipData, setTooltipData] = useState({ visible: false, content: '', x: 0, y: 0 });
     const [sidebarData, setSidebarData] = useState({ visible: false, content: '' });
+    const hoveredGameNameRef = useRef(null);
+    const selectedGameNameRef = useRef(null);
+    const selectedLinkRef = useRef(null);
+    const nodesRef = useRef([]);
 
     useEffect(() => {
         const svg = d3.select(svgRef.current)
@@ -54,6 +58,8 @@ function Graph({ selectedGameName, onSelectGame }) {
             ) {
                 setSidebarData({ visible: false, content: '' });
                 onSelectGame(null);
+                selectedLinkRef.current = null;
+                updateNodeStyles();
             }
         };
 
@@ -77,12 +83,31 @@ function Graph({ selectedGameName, onSelectGame }) {
 
         const graphContainer = svg.append('g');
 
+        const defs = svg.append('defs');
+
+        const glow = defs.append('filter')
+            .attr('id', 'linkGlow')
+            .attr('x', '-50%')
+            .attr('y', '-50%')
+            .attr('width', '200%')
+            .attr('height', '200%');
+
+        glow.append('feGaussianBlur')
+            .attr('stdDeviation', '2.5')
+            .attr('result', 'coloredBlur');
+
+        const feMerge = glow.append('feMerge');
+        feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+        feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
         svg.on("click", (event) => {
             const tag = event.target?.tagName?.toLowerCase();
             const clickedNodeOrLink = tag === 'circle' || tag === 'line' || tag === 'text';
             if (!clickedNodeOrLink) {
                 setSidebarData({ visible: false, content: '' });
                 onSelectGame(null);
+                selectedLinkRef.current = null;
+                updateNodeStyles();
             }
         });
 
@@ -94,6 +119,8 @@ function Graph({ selectedGameName, onSelectGame }) {
                 year: d.Year,
                 publisher: d.Publisher
             }));
+
+            nodesRef.current = nodes;
 
             const links = [];
             const developerMap = {};
@@ -203,8 +230,16 @@ function Graph({ selectedGameName, onSelectGame }) {
                 .on('click', (event, d) => {
                     event.stopPropagation();
 
-                    const next = (selectedGameName === d.id) ? null : d.id;
+                    const currentSelected = selectedGameNameRef.current;
+                    const next = (currentSelected === d.id) ? null : d.id;
+
                     onSelectGame(next);
+
+                    selectedGameNameRef.current = next;
+                    selectedLinkRef.current = null;
+                    hoveredGameNameRef.current = null;
+
+                    updateNodeStyles();
 
                     if (next) {
                         const contentHTML = `
@@ -219,14 +254,19 @@ function Graph({ selectedGameName, onSelectGame }) {
                         setSidebarData({ visible: false, content: '' });
                     }
                 })
+
                 .on('mouseover', (event, d) => {
+                    hoveredGameNameRef.current = d.id;
+                    updateNodeStyles();
+
                     const [x, y] = d3.pointer(event, svg.node());
                     const contentHTML =
                         `<b>${d.id}</b><br>
-                    <b>Console:</b> ${d.console}<br>
-                    <b>Year:</b> ${d.year}<br>
-                    <b>Developer:</b> ${d.group}<br>
-                    <b>Publisher:</b> ${d.publisher}`;
+    <b>Console:</b> ${d.console}<br>
+    <b>Year:</b> ${d.year}<br>
+    <b>Developer:</b> ${d.group}<br>
+    <b>Publisher:</b> ${d.publisher}`;
+
                     setTooltipData({
                         visible: true,
                         content: contentHTML,
@@ -235,6 +275,9 @@ function Graph({ selectedGameName, onSelectGame }) {
                     });
                 })
                 .on('mouseout', () => {
+                    hoveredGameNameRef.current = null;
+                    updateNodeStyles();
+
                     setTooltipData({ visible: false, content: '', x: 0, y: 0 });
                 })
                 .call(drag(simulation));
@@ -255,6 +298,16 @@ function Graph({ selectedGameName, onSelectGame }) {
             node.call(drag(simulation));
 
             function handleLinkClick(event, d) {
+                event.stopPropagation();
+
+                onSelectGame(null);
+                selectedGameNameRef.current = null;
+
+                selectedLinkRef.current = { sourceId: d.source.id, targetId: d.target.id };
+                hoveredGameNameRef.current = null;
+
+                updateNodeStyles();
+
                 const sourceData = nodes.find(node => node.id === d.source.id);
                 const targetData = nodes.find(node => node.id === d.target.id);
                 const contentHTML = `
@@ -299,17 +352,93 @@ function Graph({ selectedGameName, onSelectGame }) {
 
     useEffect(() => {
         updateNodeStyles();
+
+        const raf1 = requestAnimationFrame(() => updateNodeStyles());
+        const raf2 = requestAnimationFrame(() => updateNodeStyles());
+
+        return () => {
+            cancelAnimationFrame(raf1);
+            cancelAnimationFrame(raf2);
+        };
     }, [selectedGameName]);
+
+
+    useEffect(() => {
+        selectedGameNameRef.current = selectedGameName;
+    }, [selectedGameName]);
+
+    useEffect(() => {
+        if (!selectedGameName) {
+            setSidebarData({ visible: false, content: '' });
+            return;
+        }
+
+        const node = nodesRef.current.find(n => n.id === selectedGameName);
+        if (!node) return;
+
+        const contentHTML = `
+    <h3>${node.id}</h3>
+    <p><strong>Console:</strong> ${node.console}</p>
+    <p><strong>Year:</strong> ${node.year}</p>
+    <p><strong>Developer:</strong> ${node.group}</p>
+    <p><strong>Publisher:</strong> ${node.publisher}</p>
+  `;
+
+        setSidebarData({ visible: true, content: contentHTML });
+    }, [selectedGameName]);
+
 
     function updateNodeStyles() {
         const svg = d3.select(svgRef.current);
+        const currentSelected = selectedGameNameRef.current;
+        const linkSel = selectedLinkRef.current;
 
-        svg.selectAll("circle").each(function (d) {
-            const isSelected = selectedGameName && d.id === selectedGameName;
+        svg.selectAll('line').each(function (d) {
+            const linkSel = selectedLinkRef.current;
+
+            const isSelectedLink =
+                linkSel &&
+                (
+                    (d.source?.id === linkSel.sourceId && d.target?.id === linkSel.targetId) ||
+                    (d.source?.id === linkSel.targetId && d.target?.id === linkSel.sourceId)
+                );
 
             d3.select(this)
-                .attr('stroke', isSelected ? '#ffffff' : 'rgba(255, 0, 243, 1)')
-                .attr('stroke-width', isSelected ? 4 : 1.5);
+                .attr('stroke', isSelectedLink ? '#ffffff' : 'rgba(255, 0, 243, 1)')
+                .attr('stroke-width', isSelectedLink ? 3.5 : 1.5)
+                .attr('stroke-opacity', isSelectedLink ? 1 : 0.9)
+                .attr('filter', isSelectedLink ? 'url(#linkGlow)' : null);
+        });
+
+        svg.selectAll('circle').each(function (d) {
+            const isLinkEndpoint =
+                linkSel && (d.id === linkSel.sourceId || d.id === linkSel.targetId);
+            const isSelected = (currentSelected && d.id === currentSelected) || isLinkEndpoint;
+            const isHovered = hoveredGameNameRef.current && d.id === hoveredGameNameRef.current;
+
+            // Base (normal neon)
+            let stroke = 'rgba(255, 0, 243, 1)';
+            let strokeWidth = 1.5;
+            let r = 5;
+
+            // Hover style (if not selected)
+            if (isHovered && !isSelected) {
+                stroke = '#ffffff';
+                strokeWidth = 3;
+                r = 9;
+            }
+
+            // Selected style wins
+            if (isSelected) {
+                stroke = '#ffffff';
+                strokeWidth = 4;
+                r = 8;
+            }
+
+            d3.select(this)
+                .attr('stroke', stroke)
+                .attr('stroke-width', strokeWidth)
+                .attr('r', r);
         });
     }
 
