@@ -68,6 +68,16 @@ function App() {
 
   return (
     <div className="container-fluid">
+      <div className="mobile-overlay" role="dialog" aria-modal="true" aria-label="Desktop recommended">
+        <div className="mobile-overlay__card">
+          <h2>Desktop recommended</h2>
+          <p>
+            This interactive demo is designed for desktop screens. For the best experience,
+            please visit from a desktop or laptop.
+          </p>
+        </div>
+      </div>
+
       <div
         style={{
           position: 'fixed',
